@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keyboard title="Full" spacing="30" description="Full pc-105 keyboard providing functional keys and keypad"> 
+<row height="2450" width="800">
+  <key code="10"></key>
+  <key code="11"></key>
+  <key code="12"></key>
+  <key code="13"></key>
+  <key code="14"></key>
+  <key code="15"></key>
+  <key code="16"></key>
+  <key code="17"></key>
+  <key code="18"></key>
+  <key code="19"></key>
+  <key code="20"></key>
+  <key code="60"></key>
+</row>
+<row height="2450" width="875">
+  <key code="24"></key>
+  <key code="25" ></key>
+  <key code="26" ></key>
+  <key code="27" ></key>
+  <key code="28" ></key>
+  <key code="29" ></key>
+  <key code="30" ></key>
+  <key code="31" ></key>
+  <key code="32" ></key>
+  <key code="33" ></key>
+  <fkey action="ARROWUP"></fkey>
+</row>
+<row height="2450" width="875">
+  <key code="38"></key>
+  <key code="39" ></key>
+  <key code="40" ></key>
+  <key code="41" ></key>
+  <key code="42" ></key>
+  <key code="43" ></key>
+  <key code="44" ></key>
+  <key code="45" ></key>
+  <key code="46" ></key>
+  <fkey action="ENTER"></fkey>
+  <fkey action="ARROWDOWN"></fkey>
+</row>
+<row height="2450" width="875">
+  <key code="52"></key>
+  <key code="53" ></key>
+  <key code="54" ></key>
+  <key code="55" ></key>
+  <key code="56" ></key>
+  <key code="57" ></key>
+  <key code="58" ></key>
+  <fkey action="SPACE" width="1750"></fkey>
+  <skey action="SHIFT"></skey>
+  <fkey action="BACKSPACE" width="850"></fkey>
+</row>
+</keyboard>

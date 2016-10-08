@@ -1,0 +1,12 @@
+#"PixArt DynexWired USB Optical Mouse" "/dev/input/event3" none key/272 "XButton/3"
+
+#"ADS7846 Touchscreen" "/dev/input/event4" none key/330 "XButton/2"
+
+#probably want do do this here for UPDATE 1
+#"ADS7846 Touchscreen" "/dev/input/event4" none key/330 "XButton/1"
+
+#"ADS7846 Touchscreen" "/dev/input/event3" none key/330 "XButton/2"
+
+#"ADS7846 Touchscreen" "/dev/input/event3" none key/330 "Shell//home/pi/BOOST"
+
+"ADS7846 Touchscreen" "/dev/input/event*" none key/330 "Shell//home/jason/BOOST"

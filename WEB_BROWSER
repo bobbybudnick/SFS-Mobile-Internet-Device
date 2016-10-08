@@ -1,0 +1,7 @@
+#switch to left click mode
+#no background because this must complete before continuing
+/home/jason/LEFT
+
+#start browser
+qupzilla&
+

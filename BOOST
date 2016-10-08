@@ -1,0 +1,7 @@
+#kdialog --passivepopup "TOOT" 1
+CLICK_OVERRIDE=$( awk '{ print }' /home/jason/CONTROL2 )
+if [ "$CLICK_OVERRIDE" -eq "1" ]
+then
+xdotool click 1
+fi
+

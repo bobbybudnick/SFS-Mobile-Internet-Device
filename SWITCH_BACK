@@ -1,0 +1,26 @@
+#!/bin/bash
+
+RUNNING=$( awk '{ print }' ~/CONTROL )
+if [ "$RUNNING" -eq "1" ]
+then
+exit
+fi
+
+echo "1" > ~/CONTROL
+
+kdialog --passivepopup "Web Mode" .01
+
+#around 20ms middle button and 999ms kde timeout required here
+#turn on web mode again
+#xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation Button" 2
+
+#switch back to 20 ms timeout for proper touch scrolling
+#xinput --set-prop "ADS7846 Touchscreen" 250 20
+
+#newest
+#xinput --set-prop "ADS7846 Touchscreen" 249 1
+xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 1
+echo "1" > ~/CONTROL2
+
+echo "0" > ~/CONTROL
+

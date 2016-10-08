@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#check if we are already running
+RUNNING=$( awk '{ print }' ~/CONTROL )
+if [ "$RUNNING" -eq "1" ]
+then
+exit
+fi
+
+#check if browser is running
+BROWSER_CHECK=$(ps aux | grep qupzilla | wc -l)
+
+#signal we are running
+echo "1" > ~/CONTROL
+
+#turn off supplemental left click
+#this conflicts with natural left click resulting in no clicks
+#this lets left click work naturally
+#supplemental needed for left clicking during middle click mode
+echo "0" > ~/CONTROL2
+
+#newest - turn off emulation and revert to left click mode
+xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 0
+
+#if browser running do temporary switch only
+if [ "$BROWSER_CHECK" -gt 1 ]
+then
+kdialog --passivepopup "Left Click Mode - Temporary" .01
+sleep 3
+xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 1
+#turn back on supplemental left click
+echo "1" > ~/CONTROL2
+fi
+
+#if browser not running do permanent switch
+if [ "$BROWSER_CHECK" -lt 2 ]
+then
+kdialog --passivepopup "Left Click Mode - Permanent" .01
+fi
+
+#signal we are not running
+echo "0" > ~/CONTROL
+

@@ -14,6 +14,7 @@ fi
 echo "1" > ~/CONTROL
 
 #newest modified - right click mode should always be temporary
+kdialog --passivepopup "Right Click Mode - Temporary" .01
 xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation Button" 3
 sleep 3
 xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation Button" 2

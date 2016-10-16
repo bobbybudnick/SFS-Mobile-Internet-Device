@@ -26,7 +26,7 @@ xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 0
 if [ "$BROWSER_CHECK" -gt 1 ]
 then
 kdialog --passivepopup "Left Click Mode - Temporary" .01
-sleep 3
+sleep 5
 xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 1
 #turn back on supplemental left click
 echo "1" > ~/CONTROL2

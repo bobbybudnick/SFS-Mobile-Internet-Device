@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#no left click bug can be fixed by toggling ads7846 in xinput
+
 #there are three basic modes
 #these modes are activated by kde gestures and menu icons
 #left click mode, right click mode, web (middle click) mode
@@ -14,30 +16,30 @@
 #axes swap - 1
 #axes inversion - 0 1
 
-BOOT_STATUS=$( awk '{ print }' /home/jason/FIRST_BOOT )
+BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
 if [ "$BOOT_STATUS" -eq "1" ]
 then
 sudo rm /etc/wvdial.conf
 PROVIDER=$( kdialog --radiolist "Choose your cellular provider:" 1 "ATT" on 2 "ATT Prepaid" off 3 "Tmobile" off )
 if [ "$PROVIDER" -eq 1 ]
 then
-sudo cp /home/jason/wvdial.conf.ATT /etc/wvdial.conf
+sudo cp /home/pi/wvdial.conf.ATT /etc/wvdial.conf
 fi
 if [ "$PROVIDER" -eq 2 ]
 then
-sudo cp /home/jason/wvdial.conf.ATTPREPAID /etc/wvdial.conf
+sudo cp /home/pi/wvdial.conf.ATTPREPAID /etc/wvdial.conf
 fi
 if [ "$PROVIDER" -eq 3 ]
 then
-sudo cp /home/jason/wvdial.conf.TMOBILE /etc/wvdial.conf
+sudo cp /home/pi/wvdial.conf.TMOBILE /etc/wvdial.conf
 fi
-echo "0" > /home/jason/FIRST_BOOT
+echo "0" > /home/pi/FIRST_BOOT
 kdialog --passivepopup "Your system is configured - rebooting" 1
 sudo sync
 sudo reboot
 fi
 
-echo "1" > /home/jason/CONTROL2
+echo "1" > /home/pi/CONTROL2
 
 #CELL_COUNTER=100
 EVROUTER_COUNTER=100
@@ -63,13 +65,13 @@ qdbus $URT Set "" value 2
 qdbus $URT setLabelText "SMS Setup"
 sudo ModemManager&
 sleep 5
-sudo cp settings.conf /root/.config/modem-manager-gui
+sudo cp /home/pi/settings.conf /root/.config/modem-manager-gui/settings.conf
 kdesudo modem-manager-gui&
 CHECKING=1
 while [ $CHECKING -gt 0 ]
 do
-TOOT=$( xdotool search --onlyvisible --name Modem )
-if [ $TOOT ]
+WINDOW_CHECK=`xdotool search --onlyvisible --name Modem | wc -l`
+if [ $WINDOW_CHECK -gt 1 ]
 then
 CHECKING=0
 fi

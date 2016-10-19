@@ -46,6 +46,11 @@ EVROUTER_COUNTER=100
 WVDIAL_COUNTER=100
 DRIVER_COUNTER=100
 
+#thermal and energy management section
+#set cpu to max speed when load reaches 95%
+#works combined with arm_freq_min=500 in config.txt
+sudo sh -c "echo '95' >> /sys/devices/system/cpu/cpufreq/ondemand/up_threshold"
+
 URT=`kdialog --progressbar "Touchscreen Setup" 4`
 #xinput set-prop 'ADS7846 Touchscreen' 'Evdev Axes Swap' 1
 #xinput set-prop 'ADS7846 Touchscreen' 'Evdev Axis Inversion' 0 1

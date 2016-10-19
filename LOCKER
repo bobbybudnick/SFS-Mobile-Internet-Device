@@ -1,0 +1,32 @@
+#check if we are already locked
+LOCK_STATE=$( awk '{ print }' ~/CONTROL3 )
+
+if [ "$LOCK_STATE" -eq "1" ]
+then
+#signal we are unlocked
+echo "0" > ~/CONTROL3
+fi
+
+if [ "$LOCK_STATE" -eq "0" ]
+then
+#signal we are locked
+echo "1" > ~/CONTROL3
+#check this once more
+LOCK_STATE=$( awk '{ print }' ~/CONTROL3 )
+while [ "$LOCK_STATE" -eq "1" ]
+do
+kdialog --passivepopup "Locked - draw a circle to unlock" .01
+LOCK_STATE=$( awk '{ print }' ~/CONTROL3 )
+#otherwise lock
+#enable middle click emulation and disable supplemental left
+xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 1
+echo "0" > ~/CONTROL2
+sleep 2.5
+done
+#unlock here
+#enable middle click emulation and enable supplemental left
+xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 1
+echo "1" > ~/CONTROL2
+kdialog --passivepopup "Unlocked" .01
+fi
+

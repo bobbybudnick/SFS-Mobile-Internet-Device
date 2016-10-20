@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#while true
+#do
+
+#kill this script externally
+
+kdialog --sorry "Continue" --title "Bootup Dialog"
+
+#echo $?
+
+echo "1" > /home/pi/RESET
+
+#done
+

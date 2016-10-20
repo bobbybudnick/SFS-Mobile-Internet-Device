@@ -1,0 +1,42 @@
+#!/bin/bash
+
+rm /home/pi/RESET
+echo "0" > /home/pi/RESET
+
+#new code
+LOOPING=true
+while [ "$LOOPING" = "true" ]
+do
+kdialog --passivepopup "Reset Screen or Press Continue" 1
+COUNT=`dmesg | grep Product | grep -c ZH851`
+#echo "$COUNT"
+if [ "$COUNT" -ge "2" ]
+then
+#exit
+#echo "Shutting Down"
+LOOPING=false
+fi
+#check for continue signal
+RUNNING=$( awk '{ print }' ~/RESET )
+if [ "$RUNNING" -eq "1" ]
+then
+#echo "Shutting Down"
+LOOPING=false
+fi
+sleep 2
+done
+
+#echo "Shutdown"
+
+#may need additional sleep time here or active check for /dev/ttyUSB0
+#additional sleep time for USB devices to reappear
+#no longer needed
+#sleep 15
+
+#kill continue prompt
+killall TERTIARY
+SEARCH=$(xdotool search Boot)
+xdotool windowkill $SEARCH
+
+echo "1" > /home/pi/RESET
+

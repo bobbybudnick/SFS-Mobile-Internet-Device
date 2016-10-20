@@ -1,0 +1,143 @@
+#was not working because grep line buffered mode was needed - this works now
+#xinput test-xi2 | grep --line-buffered -F 1: > HOOT&
+#all output needs to be sent here
+#xinput test-xi2 > HOOT&
+xinput test-xi2 > /run/user/1000/HOOT&
+
+#counts time while virtual left button is held down
+DOWN_COUNTER=0
+DELAY_COUNTER=0
+SCRIPTED_MODE=1
+
+while [ true ]
+do
+
+	#this keeps some things from running needlessly at 10 times per second
+	DELAY_COUNTER=$((DELAY_COUNTER+1))
+	if [ "$DELAY_COUNTER" -gt 30 ]
+	then
+	DELAY_COUNTER=0
+	#application specific touch handoff
+	#check amount of running chromium processes
+	CHROMIUM_CHECK=$(ps aux | grep chromium | wc -l)
+	if [ "$CHROMIUM_CHECK" -lt 2 ]
+	then
+	SCRIPTED_MODE=1
+	#set mouse 2 to mouse 1 and disable mouse 1
+	#this disables the built in left click to let the script handle it
+	xmodmap -e "pointer = 0 1 3 0 0"
+	#kdialog --passivepopup "Touch Features - Scripted" 1
+	fi
+	if [ "$CHROMIUM_CHECK" -ge 2 ]
+	then
+	SCRIPTED_MODE=0
+	#set mouse normally
+	#this enables the built in left click to let applications handle it
+	xmodmap -e "pointer = 1 2 3 0 0"
+	#kdialog --passivepopup "Touch Features - Native" 1
+	fi
+	fi
+
+	if [ "$SCRIPTED_MODE" -gt 0 ]
+	then
+
+	#check that at least one touch start has happened
+	BEGIN_COUNT=$(cat /run/user/1000/HOOT | grep -F RawTouchBegin | wc -l)
+	if [ "$BEGIN_COUNT" -gt 0 ]
+	then
+
+	#DOWN_COUNTER=DOWN_COUNTER+1
+	DOWN_COUNTER=$((DOWN_COUNTER+1))
+
+		#might not run on first try but will eventually run
+		#check that at least one touch end has happened
+		END_COUNT=$(cat /run/user/1000/HOOT | grep -F RawTouchEnd | wc -l)
+		if [ "$END_COUNT" -gt 0 ]
+		then
+
+			#what should this be??? - 1 or 0???
+			LEFT_CLICK_CLEAR=0
+
+			if [ "$DOWN_COUNTER" -lt 5 ]
+			then
+			LEFT_CLICK_CLEAR=1
+			#grep -a required here for some reason
+			#NUMBER_1=$(cat /run/user/1000/HOOT | grep -a -F 1: | cut -b14-16 | head -n1)
+			#sed required here because the second line is needed
+			#the first line is garbage
+			#these find the first and last y movement lines
+			NUMBER_1=$(cat /run/user/1000/HOOT | grep -a -F 1: | cut -b14-16 | sed -n 2p)
+			NUMBER_2=$(cat /run/user/1000/HOOT | grep -a -F 1: | cut -b14-16 | tail -n1)
+			#the next 2 checks are needed
+			#because sometimes grep returns non-numerical results
+			#such as when clicking minimize in the xinput window
+			#this checks if this is a valid number
+			if [ "$NUMBER_1" -eq "$NUMBER_1" ]
+			then
+			if [ "$NUMBER_2" -eq "$NUMBER_2" ]
+			then
+			#this checks if there has been significant movement
+			#insignificant if closer to zero than +-10
+			#then is instead interpreted as a left click
+			NUMBER_2_ADJUSTED_1=$((NUMBER_2+10))
+			NUMBER_2_ADJUSTED_2=$((NUMBER_2-10))
+			#this ultimately checks for a vertical finger swipe
+			if [ "$NUMBER_1" -gt "$NUMBER_2_ADJUSTED_1" ]
+			then
+			echo "DEBUG DOWN"
+			xdotool key Down
+			xdotool key Down
+			xdotool key Down
+			xdotool key Down
+			xdotool key Down
+			xdotool key Down
+			xdotool key Down
+			truncate -s 0 /run/user/1000/HOOT
+			DOWN_COUNTER=0
+			LEFT_CLICK_CLEAR=0
+			fi			
+			#this ultimately checks for a vertical finger swipe
+			if [ "$NUMBER_1" -le "$NUMBER_2_ADJUSTED_2" ]
+			then
+			echo "DEBUG UP"
+			xdotool key Up
+			xdotool key Up
+			xdotool key Up
+			xdotool key Up
+			xdotool key Up
+			xdotool key Up
+			xdotool key Up
+			truncate -s 0 /run/user/1000/HOOT
+			DOWN_COUNTER=0
+			LEFT_CLICK_CLEAR=0
+			fi
+			fi
+			fi
+			fi
+
+			if [ "$LEFT_CLICK_CLEAR" -gt 0 ]
+			then
+			echo "DEBUG LEFT CLICK"
+			#this should actually be 2 because 2 is mapped to 1
+			xdotool click 2
+			truncate -s 0 /run/user/1000/HOOT
+			DOWN_COUNTER=0
+			fi
+
+			if [ "$DOWN_COUNTER" -ge 5 ]
+			then
+			echo "DEBUG RIGHT CLICK"
+			xdotool click 3
+			truncate -s 0 /run/user/1000/HOOT
+			DOWN_COUNTER=0
+			fi
+
+		fi
+	fi
+
+#SCRIPTED_MODE
+fi
+
+sleep .1
+done
+

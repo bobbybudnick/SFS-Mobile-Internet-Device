@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#check if we are already running
+RUNNING=$( awk '{ print }' ~/CONTROL )
+if [ "$RUNNING" -eq "1" ]
+then
+exit
+fi
+
+#signal we are running
+echo "1" > ~/CONTROL
+
+#turn off supplemental left click
+#this conflicts with natural left click resulting in no clicks
+#this lets left click work naturally
+#supplemental needed for left clicking during middle click mode
+echo "0" > ~/CONTROL2
+
+#newest - turn off emulation and revert to left click mode
+xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 0
+
+#this override does a permanent switch
+kdialog --passivepopup "Left Click Mode - Override" .01
+
+#signal we are not running
+echo "0" > ~/CONTROL
+

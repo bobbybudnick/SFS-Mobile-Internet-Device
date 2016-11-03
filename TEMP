@@ -72,6 +72,8 @@ sudo ModemManager&
 sleep 5
 sudo cp /home/pi/settings.conf /root/.config/modem-manager-gui/settings.conf
 kdesudo modem-manager-gui&
+#world readable for sms check-bad idea-can do sudo sh -c instead
+sudo chmod -R 777 /root/
 CHECKING=1
 while [ $CHECKING -gt 0 ]
 do
@@ -193,12 +195,15 @@ fi
 #sudo echo -e -n 'AT+CSQ\r' > /dev/ttyUSB2
 #fi
 
-#query modemmananger for signal
 if [ "$CELL_COUNTER" -gt 55 ]
 then
 CELL_COUNTER=0
-RESULTANT=`mmcli -m 0 --simple-status | grep signal`
-kdialog --passivepopup "$RESULTANT" 1
+#query modemmananger for signal
+RESULTANT_1=`mmcli -m 0 --simple-status | grep signal`
+#check number of unread messages
+RESULTANT_2=`cat /root/.local/share/modem-manager-gui/devices/*/sms.gdbm | grep -a '<read>0' | wc -l`
+#display convenience popup
+kdialog --passivepopup "$RESULTANT_1/Unread SMS:$RESULTANT_2" 1
 fi
 
 #try to avoid double clicks with onscreen keyboard

@@ -1,32 +1,40 @@
+#!/bin/bash
+
 #DEPENDENCIES: dnsmasq and iftop
 
-if ! kdialog --title "Router App - Intro" --warningcontinuecancel "Press Continue to run the router app"
+#if ! kdialog --title "Router App - Intro" --warningcontinuecancel "Press Continue to run the router app"
+#then
+#exit
+#fi
+
+read -p "Press y to continue" -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]
 then
-exit
-fi
 
 #set ethernet ip manually and ppp0 is automatic from wvdial
-ifconfig eth0 up
-ifconfig eth0 192.168.1.1
+sudo ifconfig eth0 up
+sudo ifconfig eth0 192.168.1.1
 
 #pass traffic from subnet to subnet
-echo 1 > /proc/sys/net/ipv4/ip_forward
+#sudo sh -c "echo '1' >> /proc/sys/net/ipv4/ip_forward"
 
 #don't block any traffic to or from the lan specifically
 #an inverse rule does not make sense here
 #because things go to and from ppp0 freely because it is router
 #no it is supposed to block all on wan until a rule is made
-iptables -A FORWARD -i eth0 -j ACCEPT
-iptables -A FORWARD -o eth0 -j ACCEPT
+sudo iptables -A FORWARD -i eth0 -j ACCEPT
+sudo iptables -A FORWARD -o eth0 -j ACCEPT
 
 #all traffic is translated going out of ppp0
-iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
 
 #traffic forwarding which specifically unblocks also?
-#iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 80 -J DNAT--to 192.168.1.10:80
+#sudo iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 80 -J DNAT--to 192.168.1.10:80
 
-iftop -p -i ppp0
+sudo iftop -p -i ppp0
 
 echo "Shutting Down Router"
-ifconfig eth0 down
+sudo ifconfig eth0 down
+
+fi #read
 

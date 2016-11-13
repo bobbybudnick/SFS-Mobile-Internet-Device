@@ -16,6 +16,10 @@ LOCK_STATE=$( awk '{ print }' ~/CONTROL3 )
 while [ "$LOCK_STATE" -eq "1" ]
 do
 kdialog --passivepopup "Locked - draw a circle to unlock" .01
+#minimize all visible windows to ensure unlock can happen
+for i in $(xdotool search --onlyvisible --name "")
+do xdotool windowminimize $i
+done
 LOCK_STATE=$( awk '{ print }' ~/CONTROL3 )
 #otherwise lock
 #enable middle click emulation and disable supplemental left

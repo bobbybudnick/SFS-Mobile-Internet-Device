@@ -47,13 +47,13 @@ display_rotate=1
 #sdtv_mode=2
 
 #uncomment to overclock the arm. 700 MHz is the default.
-arm_freq=700
-arm_freq_min=500
+arm_freq=900
+arm_freq_min=900
+sdram_freq=400
+gpu_freq=250
 
 start_x=1
 gpu_mem=64
-core_freq=250
-sdram_freq=400
 over_voltage=0
 dtparam=spi=on
 dtparam=i2c_arm=on

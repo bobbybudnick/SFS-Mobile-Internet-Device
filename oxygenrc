@@ -1,0 +1,8 @@
+[$Version]
+update_info=oxygen.upd:1
+
+[Style]
+ScrollBarWidth=30
+
+[Windeco]
+ButtonSize=ButtonHuge

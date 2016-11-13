@@ -2,14 +2,14 @@
 
 #DEPENDENCIES: dnsmasq and iftop
 
-#if ! kdialog --title "Router App - Intro" --warningcontinuecancel "Press Continue to run the router app"
-#then
-#exit
-#fi
-
-read -p "Press y to continue" -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]]
+if ! kdialog --title "Router App - Intro" --warningcontinuecancel "Press Continue to run the router app"
 then
+exit
+fi
+
+#read -p "Press y to continue" -n 1 -r
+#if [[ $REPLY =~ ^[Yy]$ ]]
+#then
 
 #set ethernet ip manually and ppp0 is automatic from wvdial
 sudo ifconfig eth0 up
@@ -34,7 +34,8 @@ sudo iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
 sudo iftop -p -i ppp0
 
 echo "Shutting Down Router"
+sudo ifconfig eth0 0.0.0.0
 sudo ifconfig eth0 down
 
-fi #read
+#fi #read
 

@@ -1,0 +1,48 @@
+#!/bin/bash
+
+#runs when called by MAIN_THREAD
+#MAIN_THREAD is signaled by MESSAGE_RECEIVER_SHIM
+#MESSAGE_RECEIVER_SHIM is run from kopete pipes plugin
+#kopete pipes plugin kills all scripts and subscripts
+#thus the signal is needed instead of a direct script run
+
+#no more than one instance allowed
+#check if we are already running
+RUNNING=$( awk '{ print }' ~/CONTROL4 )
+if [ "$RUNNING" -eq "1" ]
+then
+exit
+fi
+
+#signal we are running
+echo "1" > ~/CONTROL4
+
+#set SECURE_BLINKING file to 1
+echo "1" > ~/SECURE_BLINKING
+
+#wait for kopete to be visible
+while true
+do
+#kdialog --passivepopup "MESSAGE_RECEIVER - looping" .01
+WINDOW_NAME="$(xdotool getactivewindow getwindowname)"
+#echo "RECEIVER - debug 1"
+if [ "$WINDOW_NAME" == "Kopete" ]
+then
+#check again to eliminate the messaging popup false trigger
+#disabled
+#sleep 1.5
+#WINDOW_NAME=$(xdotool getactivewindow getwindowname)
+#echo "RECEIVER - debug 2"
+#if [ "$WINDOW_NAME" == "Kopete" ]
+#then
+#set SECURE_BLINKING file to 0
+#echo "RECEIVER - debug 3"
+echo "0" > ~/SECURE_BLINKING
+#signal we are not running
+echo "0" > ~/CONTROL4
+exit
+#fi
+fi
+sleep 5
+done
+

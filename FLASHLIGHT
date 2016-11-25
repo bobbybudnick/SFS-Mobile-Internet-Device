@@ -1,0 +1,11 @@
+#initial setup
+gpio mode 28 out
+
+#turn on light
+gpio write 28 1
+
+kdialog --msgbox "Flashlight running - press ok to close"
+
+#turn off light
+gpio write 28 0
+

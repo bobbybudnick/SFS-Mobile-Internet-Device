@@ -1,0 +1,19 @@
+{
+  "homeMobileCountryCode": 310,
+  "homeMobileNetworkCode": 410,
+  "radioType": "gsm",
+  "carrier": "att",
+  "considerIp": "true",
+  "cellTowers": [
+    {
+      cellId:  30718,
+      locationAreaCode:  12985,
+      "mobileCountryCode": 310,
+      "mobileNetworkCode": 410,
+      "age": 0,
+      "signalStrength": -60,
+      "timingAdvance": 15
+    }
+  ]
+}
+

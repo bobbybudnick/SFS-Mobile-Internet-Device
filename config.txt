@@ -56,7 +56,9 @@ start_x=1
 gpu_mem=64
 over_voltage=0
 dtparam=spi=on
+dtparam=i2c1=on
 dtparam=i2c_arm=on
+dtparam=i2c_vc=on
 dtoverlay=ads7846,cs=1,penirq=25,penirq_pull=2,speed=50000,keep_vref_on=0,swapxy=0,pmax=255,xohms=150,xmin=200,xmax=3900,ymin=200,ymax=3900
 dtoverlay=w1-gpio-pullup,gpiopin=4,extpullup=1
 

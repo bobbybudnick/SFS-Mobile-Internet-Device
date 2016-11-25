@@ -16,6 +16,9 @@
 #axes swap - 1
 #axes inversion - 0 1
 
+#always write FLASH_MODE the first time
+FLASH_MODE_MEMORY=-1
+
 BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
 if [ "$BOOT_STATUS" -eq "1" ]
 then
@@ -212,8 +215,43 @@ CELL_COUNTER=0
 RESULTANT_1=`mmcli -m 0 --simple-status | grep signal`
 #check number of unread messages
 RESULTANT_2=`cat /root/.local/share/modem-manager-gui/devices/*/sms.gdbm | grep -a '<read>0' | wc -l`
+#read linphone history for missed calls
+#alternate - show more call detail but less number of calls
+#RESULTANT_3=`cat /home/pi/.linphonerc | grep -A1 status=2 | grep from`
+RESULTANT_3=`cat /home/pi/.linphonerc | grep -A1 status=2 | grep from | cut -d ":" -f2 | cut -c1-10`
+#compute FLASH_MODE for notification light
+FLASH_MODE=0
+if [ $RESULTANT_2 -gt 0 ]
+then
+echo "Debug 1"
+FLASH_MODE=$(($FLASH_MODE+1))
+fi
+if [ ! -z $RESULTANT_3 ]
+then
+echo "Debug 2"
+FLASH_MODE=$(($FLASH_MODE+1))
+fi
+SECURE_BLINKING=$( awk '{ print }' /home/pi/SECURE_BLINKING )
+if [ "$SECURE_BLINKING" -eq "1" ]
+then
+echo "Debug 3"
+FLASH_MODE=$(($FLASH_MODE+1))
+fi
+#set flash mode for notification light
+if [ $FLASH_MODE -ne $FLASH_MODE_MEMORY ]
+then
+echo $FLASH_MODE > /home/pi/FLASH_MODE
+fi
+FLASH_MODE_MEMORY=$FLASH_MODE
 #display convenience popup
-kdialog --passivepopup "$RESULTANT_1/Unread SMS:$RESULTANT_2" 1
+kdialog --passivepopup "$RESULTANT_1/Unread SMS:$RESULTANT_2/Missed Calls:$RESULTANT_3" 1
+#signal MESSAGE_RECEIVER to start
+MESSAGE_RECEIVER_SIGNAL=$( awk '{ print }' /home/pi/MESSAGE_RECEIVER_SIGNAL )
+if [ "$MESSAGE_RECEIVER_SIGNAL" -eq "1" ]
+then
+echo 0 > /home/pi/MESSAGE_RECEIVER_SIGNAL
+/home/pi/MESSAGE_RECEIVER&
+fi
 fi
 
 #try to avoid double clicks with onscreen keyboard

@@ -7,6 +7,9 @@ then
 exit
 fi
 
+#this override does a permanent switch until web mode activated
+kdialog --passivepopup "Left Click Mode - Permanent" .01
+
 #signal we are running
 echo "1" > ~/CONTROL
 
@@ -15,12 +18,8 @@ echo "1" > ~/CONTROL
 #this lets left click work naturally
 #supplemental needed for left clicking during middle click mode
 echo "0" > ~/CONTROL2
-
-#newest - turn off emulation and revert to left click mode
+#turn off emulation and revert to left click mode
 xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 0
-
-#this override does a permanent switch
-kdialog --passivepopup "Left Click Mode - Override" .01
 
 #signal we are not running
 echo "0" > ~/CONTROL

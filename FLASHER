@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#initial gpio setup
+gpio mode 29 out
+
+while true
+do
+
+#read flash mode from file here and is set by MAIN_THREAD
+FLASH_MODE=$( awk '{ print }' /home/pi/FLASH_MODE )
+
+#set off in case FLASH_MODE is zero
+gpio write 29 0
+
+TIMER=0
+if [ $FLASH_MODE -eq 1 ]
+then
+while [ $TIMER -lt 6 ]
+do
+echo "Debug - slow"
+gpio write 29 1
+#low speed flash - 1 message type received
+sleep 1
+gpio write 29 0
+sleep 1
+TIMER=$(($TIMER+1))
+done
+fi
+if [ $FLASH_MODE -eq 2 ]
+then
+while [ $TIMER -lt 12 ]
+do
+echo "Debug - medium"
+gpio write 29 1
+#medium speed flash - 2 message types received
+sleep .5
+gpio write 29 0
+sleep .5
+TIMER=$(($TIMER+1))
+done
+fi
+if [ $FLASH_MODE -eq 3 ]
+then
+while [ $TIMER -lt 60 ]
+do
+echo "Debug - fast"
+gpio write 29 1
+#high speed flash - 3 message types received
+sleep .1
+gpio write 29 0
+sleep .1
+TIMER=$(($TIMER+1))
+done
+fi
+
+sleep 2
+
+done
+

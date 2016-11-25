@@ -1,7 +1,10 @@
 #kdialog --passivepopup "TOOT" 1
-CLICK_OVERRIDE=$( awk '{ print }' /home/jason/CONTROL2 )
+CLICK_OVERRIDE=$( awk '{ print }' /home/pi/CONTROL2 )
 if [ "$CLICK_OVERRIDE" -eq "1" ]
 then
+if [ $(xdotool search --onlyvisible --name plasma | head -n1) != $(xdotool getmouselocation | cut -d: -f5) ]
+then
 xdotool click 1
+fi
 fi
 

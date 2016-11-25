@@ -1,0 +1,38 @@
+#this assumes a us location with a non changing mcc and mnc
+
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Reset cellular connection" on 2 "Reset notification light" off 3 "3GPP location data" off )
+if [ "$CHOICE" -eq 1 ]
+then
+sudo killall wvdial
+kdialog --msgbox "wvdial has been killed and should automatically restart"
+fi
+if [ "$CHOICE" -eq 2 ]
+then
+echo 0 > FLASH_MODE
+echo 0 > SECURE_BLINKING
+kdialog --msgbox "variables have been zeroed and should stop light if no missed communications"
+fi
+if [ "$CHOICE" -eq 3 ]
+then
+
+#sed -i '10s/.*/      "locationAreaCode": 99999,/' TEST.json
+
+#extract cell id from mmcli
+CELL_ID=$(sudo mmcli --location-get -m 0 | cut -d ":" -f2 | head -n7 | tail -n 1 | tr -d \')
+#extract lac from mmcli
+LAC=$(sudo mmcli --location-get -m 0 | cut -d ":" -f2 | head -n6 | tail -n 1 | tr -d \')
+#edit JSON request file with both cell id and lac
+#eval needed for sed to interpret variables
+eval "sed -i '9s/.*/      "cellId": $CELL_ID,/' TEST.json"
+eval "sed -i '10s/.*/      "locationAreaCode": $LAC,/' TEST.json"
+
+#send request
+LOCATION=$(curl -k -d @TEST.json -H "Content-Type: application/json" -i "https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAOJrU_GJIPDyULw50Jrvu7qrydwED5tYA")
+
+if kdialog --title "Press continue to log to file" --warningcontinuecancel "`echo $LOCATION`"
+then
+echo $LOCATION >> LOCATION
+fi
+
+fi
+

@@ -98,7 +98,7 @@ fi
 sleep 1
 done
 sleep 10
-kdialog --passivepopup "Debug Cue - Action" 1
+kdialog --passivepopup "Standby - enabling SMS" 1
 xvkbd -window Modem* -text "\[Alt]\[a]"
 sleep .5
 xvkbd -window Modem* -text "\[Down]"

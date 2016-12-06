@@ -1,0 +1,188 @@
+#!/bin/bash
+
+#requires bc to be installed
+#tested with logitech c525/close to mic/75 percent capture
+
+#grep with and
+#grep test1 | grep test2
+#grep with or
+#grep -E test1|test2
+
+echo "AI: running nominally"
+
+#curiosity section - determine when to ask question here
+#disabled for now
+#it needs a large vocabulary on the pocketsphinx side
+QUESTION_ASKED=false
+
+if $QUESTION_ASKED
+then
+echo "AI: Curiosity"
+#read MAX_WORDS variable from ai variables file
+MAX_WORDS=$( awk '{ print }' /home/pi/AI_VARIABLES | tail -n2)
+
+#randomly select number of words to use between 1 and MAX_WORDS
+PHRAZE_SIZE_CHOICE=$(( ( RANDOM % $MAX_WORDS ) + 1 ))
+
+#select only elements equal to number of words we want to say
+DICTIONARY_SELECTION=$(cat /home/pi/AI_DICTIONARY | grep -w $PHRAZE_SIZE_CHOICE)
+
+#compute number of entries in dictionary selection
+#DICTIONARY_SIZE=$(echo $DICTIONARY_SELECTION | wc -l)
+DICTIONARY_SIZE=$((printf "%s\n" "$DICTIONARY_SELECTION") | wc -l)
+#printf "%s\n" "$DICTIONARY_SIZE"
+
+#choose a random entry from the dictionary selection
+DICTIONARY_CHOICE_INDEX=$(( ( RANDOM % $DICTIONARY_SIZE ) + 1 ))
+
+#choose the line that matches index from dictionary selection
+#eval needed to easily use a variable with sed
+#DICTIONARY_CHOICE=$(echo $DICTIONARY_SELECTION | eval "sed '"$DICTIONARY_CHOICE_INDEX"q;d'")
+DICTIONARY_CHOICE=$((printf "%s\n" "$DICTIONARY_SELECTION") | eval "sed '"$DICTIONARY_CHOICE_INDEX"q;d'")
+
+#select knowledge factor from dictionary choice
+#last awk needed because there was sometimes a strange return
+#this may need printf instead to work right???
+#may not need last awk now???
+DICTIONARY_CHOICE_KNOWLEDGE=$(echo $DICTIONARY_CHOICE | cut -d ':' -f4 | awk '{print $1}')
+
+#compute random decimal number between 0 and 1
+COMPARATOR_0=$(od -A n -N 1 -t d /dev/urandom | grep -o '..$')
+#then convert to decimal
+COMPARATOR=$(echo $COMPARATOR_0 | awk '{print $0/100}')
+#compare random number to weight and if less say phrase
+#bc required for floating point calculations
+if (( $(echo "$COMPARATOR > $DICTIONARY_CHOICE_KNOWLEDGE" | bc -l) ))
+then
+DICTIONARY_CHOICE_TEXT=$(echo $DICTIONARY_CHOICE | cut -d ':' -f2)
+espeak -ven-us+f3 --stdout -k5 -g5 -s25 "$DICTIONARY_CHOICE_TEXT knowledge factor $DICTIONARY_CHOICE_KNOWLEDGE" | aplay
+fi
+fi
+
+#input chain
+INPUT_PRE=$(/usr/bin/pocketsphinx_continuous -adcdev plughw:1,0 -agc none -inmic yes -dict /home/pi/1693.dic -lm /home/pi/1693.lm -logfn /dev/null | grep -m 1 "000" | cut -d' ' -f2-)
+#all input to lower case to match ai dictionary
+INPUT=$(echo "$INPUT_PRE" | tr '[:upper:]' '[:lower:]')
+echo $INPUT
+if ! $QUESTION_ASKED
+then
+COMMAND_RECEIVED=false
+#command determination routine
+COMMAND_CHECK_1=$(echo $INPUT | grep 'command' | grep 'switch' | wc -l)
+COMMAND_CHECK_2=$(echo $INPUT | grep 'command' | grep 'slashdot' | wc -l)
+COMMAND_BALANCE=$(($COMMAND_CHECK_1 + $COMMAND_CHECK_2))
+#command action routine
+if [ $COMMAND_BALANCE -gt 0 ]
+then
+COMMAND_RECEIVED=true
+if [ $COMMAND_CHECK_1 -gt 0 ]
+then
+COMMAND_ACTION_1=$(echo $INPUT | grep email | wc -l)
+if [ $COMMAND_ACTION_1 -gt 0 ]
+then
+icedove&
+fi
+COMMAND_ACTION_2=$(echo $INPUT | grep chat | wc -l)
+if [ $COMMAND_ACTION_2 -gt 0 ]
+then
+kopete&
+fi
+COMMAND_ACTION_3=$(echo $INPUT | grep console | wc -l)
+if [ $COMMAND_ACTION_3 -gt 0 ]
+then
+konsole&
+fi
+fi
+if [ $COMMAND_CHECK_2 -gt 0 ]
+then
+qupzilla www.slashdot.org
+fi
+fi
+#question/basic greeting/informational statement determination
+if ! $COMMAND_RECEIVED
+then
+QUESTION_CHECK_0=$(echo $INPUT | grep 'hello' | wc -l)
+QUESTION_CHECK_1=$(echo $INPUT | grep 'when did' | wc -l)
+QUESTION_CHECK_2=$(echo $INPUT | grep 'why are' | wc -l)
+QUESTION_CHECK_3=$(echo $INPUT | grep 'are you' | wc -l)
+QUESTION_CHECK_4=$(echo $INPUT | cut -d' ' -f1 | grep 'who' | wc -l)
+QUESTION_CHECK_5=$(echo $INPUT | cut -d' ' -f1 | grep 'what' | wc -l)
+QUESTION_CHECK_7=$(echo $INPUT | cut -d' ' -f1 | grep 'where' | wc -l)
+QUESTION_CHECK_8=$(echo $INPUT | cut -d' ' -f1 | grep 'when' | wc -l)
+QUESTION_CHECK_9=$(echo $INPUT | cut -d' ' -f1 | grep 'why' | wc -l)
+QUESTION_CHECK_10=$(echo $INPUT | grep 'report' | wc -l)
+QUESTION_BALANCE=$(($QUESTION_CHECK_0 + $QUESTION_CHECK_1 + $QUESTION_CHECK_2 + $QUESTION_CHECK_3 + $QUESTION_CHECK_4 + $QUESTION_CHECK_5 + $QUESTION_CHECK_6 + $QUESTION_CHECK_7 + $QUESTION_CHECK_8 + $QUESTION_CHECK_9 + $QUESTION_CHECK_10))
+#question/basic greeting/informational statement action
+if [ $QUESTION_BALANCE -gt 0 ]
+then
+echo "AI: valid question received"
+#convert spaces to walls so it can be fed into grep
+PROCESSED_INPUT=$(echo $INPUT | tr ' ' '|')
+#special rules
+#if you or your then add my and i
+RULE_1=$(echo $INPUT | grep -E 'you|your' | wc -l)
+if [ $RULE_1 -gt 0 ]
+then
+PROCESSED_INPUT=$PROCESSED_INPUT"|my|i"
+fi
+#if how and are and you then add fine
+RULE_2=$(echo $INPUT | grep 'how' | grep 'are' | grep 'you' | wc -l)
+if [ $RULE_2 -gt 0 ]
+then
+PROCESSED_INPUT=$PROCESSED_INPUT"|fine"
+fi
+RULE_3=$(echo $INPUT | grep 'nature' | wc -l)
+if [ $RULE_3 -gt 0 ]
+then
+PROCESSED_INPUT=$PROCESSED_INPUT"|theory|theorized"
+fi
+RULE_4=$(echo $INPUT | grep -E 'position|report' | wc -l)
+if [ $RULE_4 -gt 0 ]
+then
+PROCESSED_INPUT=$PROCESSED_INPUT"|quadrant|sector"
+fi
+#search for elements with word matches
+PROCESSED_INPUT=$(echo $PROCESSED_INPUT | tr '|' '\n')
+
+#main search
+#eventually check against correctness factor here
+#read in dictionary
+#search fast - F
+#search multiple lines for multiple words -f
+#show matches only on new line - o
+#show line number - n
+#match exact word - w
+#cut all except phrase subelement from ai dictionary element
+#count unique lines/remove dupes/only works because of grep -o
+#sort to move highest unique line number to top
+#cut second field from returns which is line number
+#take top return which is line number of most unique returns
+DICTIONARY_LINE=$(cat AI_DICTIONARY | grep -o -n -w -Fe "$PROCESSED_INPUT" | cut -d ':' -f1 | uniq -c | sort -r | cut -d ' ' -f8 | head -n1)
+echo $DICTIONARY_LINE
+
+#read in dictionary again and choose previously selected line
+STATEMENT=$(cat AI_DICTIONARY | eval "sed '"$DICTIONARY_LINE"q;d'" | cut -d':' -f2)
+
+#currently do not reply if statement less than 2 words
+#avoids brief irrelevant responses
+STATEMENT_CHECK=$(echo $STATEMENT | tr ' ' '\n' | wc -l)
+if [ $STATEMENT_CHECK -lt 2 ]
+then
+STATEMENT="that information is not available"
+fi
+
+#now play most correct response
+espeak -ven-us+f3 --stdout -k5 -g5 -s150 "$STATEMENT" | aplay
+fi
+fi
+fi
+#response section
+if $QUESTION_ASKED
+then
+QUESTION_ASKED=false
+RESPONSE_CHECK_1=$(echo $INPUT | grep 'yes' | wc -l)
+RESPONSE_CHECK_2=$(echo $INPUT | grep 'no' | wc -l)
+RESPONSE_CHECK_3=$(echo $INPUT | grep 'heh' | wc -l)
+RESPONSE_CHECK_4=$(echo $INPUT | grep 'hah' | wc -l)
+fi
+

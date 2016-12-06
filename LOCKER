@@ -25,7 +25,8 @@ LOCK_STATE=$( awk '{ print }' ~/CONTROL3 )
 #enable middle click emulation and disable supplemental left
 xinput --set-prop "ADS7846 Touchscreen" "Evdev Third Button Emulation" 1
 echo "0" > ~/CONTROL2
-sleep 2.5
+#sleep 2.5
+sleep 2
 done
 #unlock here
 #enable middle click emulation and enable supplemental left

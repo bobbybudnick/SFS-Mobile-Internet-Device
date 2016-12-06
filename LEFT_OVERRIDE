@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#check if we are already locked
+#this prevents making gestures impossible during lock time
+LOCK_STATE=$( awk '{ print }' ~/CONTROL3 )
+if [ "$LOCK_STATE" -eq "1" ]
+then
+exit
+fi
+
 #check if we are already running
 RUNNING=$( awk '{ print }' ~/CONTROL )
 if [ "$RUNNING" -eq "1" ]

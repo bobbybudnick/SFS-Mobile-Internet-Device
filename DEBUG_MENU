@@ -1,6 +1,6 @@
 #this assumes a us location with a non changing mcc and mnc
 
-CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Reset cellular connection" on 2 "Reset notification light" off 3 "3GPP location data" off )
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Reset cellular connection" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time" off 5 "Toggle AI" off)
 if [ "$CHOICE" -eq 1 ]
 then
 sudo killall wvdial
@@ -29,10 +29,38 @@ eval "sed -i '10s/.*/      "locationAreaCode": $LAC,/' TEST.json"
 #send request
 LOCATION=$(curl -k -d @TEST.json -H "Content-Type: application/json" -i "https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAOJrU_GJIPDyULw50Jrvu7qrydwED5tYA")
 
-if kdialog --title "Press continue to log to file" --warningcontinuecancel "`echo $LOCATION`"
+kdialog --msgbox "$LOCATION"
+
+#if kdialog --title "Logging" --warningcontinuecancel "`echo $LOCATION`"
+if kdialog --title "Logging" --warningcontinuecancel "Press continue to log to file"
 then
 echo $LOCATION >> LOCATION
 fi
+fi
 
+if [ "$CHOICE" -eq 4 ]
+then
+TIME=$(nc time.nist.gov 13)
+
+TIME_1=$(echo "$TIME" | cut -d' ' -f2)
+TIME_2=$(echo "$TIME" | cut -d' ' -f3)
+
+FORMATTED_TIME="$TIME_1 $TIME_2 UTC ET -5"
+
+#echo $FORMATTED_TIME
+kdialog --msgbox "$FORMATTED_TIME"
+fi
+
+if [ "$CHOICE" -eq 5 ]
+then
+AI_SWITCH=$(cat AI_SWITCH)
+if [ "$AI_SWITCH" -eq 0 ]
+then
+echo "1" > /home/pi/AI_SWITCH
+fi
+if [ "$AI_SWITCH" -eq 1 ]
+then
+echo "0" > /home/pi/AI_SWITCH
+fi
 fi
 

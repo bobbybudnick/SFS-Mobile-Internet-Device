@@ -1,0 +1,19 @@
+This is the first release of the SFS AI packaged with the first SFS MID release.
+
+You may toggle the AI on and off at any time by using the debug menu.
+
+Here are some questions you can ask:
+when were you built?
+how are you?
+what is the nature of the universe?
+
+Here are some informational statements you can make:
+position report
+(anything unrecognized)
+
+Here are some commands you can issue:
+command switch chat
+command switch email
+command switch console
+command slashdot
+

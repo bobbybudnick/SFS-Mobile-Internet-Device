@@ -1,0 +1,6 @@
+#prepare export file for importing into lmtool
+#for ai level to interpretation level information transfer
+#this ensures pocketsphinx can understand ai dictionary entries
+
+cat AI_DICTIONARY | cut -d':' -f2 > sample.txt
+

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+while true
+do
+
+LINPHONE_SEARCH=$(xdotool search --onlyvisible --name "linphone" | tr ' ' '\n' | wc -l)
+
+if [ $LINPHONE_SEARCH -gt 1 ]
+then
+#try to prevent microphone conflict with phone call
+killall AI_THREAD
+kdialog --passivepopup "AI disabled" 1
+#minimal popups and logic possibly interfering with phone call
+sleep 30
+fi
+
+if [ $LINPHONE_SEARCH -lt 2 ]
+then
+if ! ps -C AI_THREAD
+then
+AI_SWITCH=$(cat /home/pi/AI_SWITCH)
+if [ $AI_SWITCH -gt 0 ]
+then
+/home/pi/AI_THREAD&
+kdialog --passivepopup "AI enabled" 1
+fi
+fi
+fi
+
+#may need tuning
+sleep 3
+
+done
+

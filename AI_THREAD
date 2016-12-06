@@ -64,6 +64,7 @@ INPUT_PRE=$(/usr/bin/pocketsphinx_continuous -adcdev plughw:1,0 -agc none -inmic
 #all input to lower case to match ai dictionary
 INPUT=$(echo "$INPUT_PRE" | tr '[:upper:]' '[:lower:]')
 echo $INPUT
+kdialog --passivepopup "AI listener: $INPUT" 2
 if ! $QUESTION_ASKED
 then
 COMMAND_RECEIVED=false
@@ -157,11 +158,11 @@ PROCESSED_INPUT=$(echo $PROCESSED_INPUT | tr '|' '\n')
 #sort to move highest unique line number to top
 #cut second field from returns which is line number
 #take top return which is line number of most unique returns
-DICTIONARY_LINE=$(cat AI_DICTIONARY | grep -o -n -w -Fe "$PROCESSED_INPUT" | cut -d ':' -f1 | uniq -c | sort -r | cut -d ' ' -f8 | head -n1)
+DICTIONARY_LINE=$(cat /home/pi/AI_DICTIONARY | grep -o -n -w -Fe "$PROCESSED_INPUT" | cut -d ':' -f1 | uniq -c | sort -r | cut -d ' ' -f8 | head -n1)
 echo $DICTIONARY_LINE
 
 #read in dictionary again and choose previously selected line
-STATEMENT=$(cat AI_DICTIONARY | eval "sed '"$DICTIONARY_LINE"q;d'" | cut -d':' -f2)
+STATEMENT=$(cat /home/pi/AI_DICTIONARY | eval "sed '"$DICTIONARY_LINE"q;d'" | cut -d':' -f2)
 
 #currently do not reply if statement less than 2 words
 #avoids brief irrelevant responses

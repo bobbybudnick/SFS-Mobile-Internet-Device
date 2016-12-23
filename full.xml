@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <keyboard title="Full" spacing="30" description="Full pc-105 keyboard providing functional keys and keypad"> 
-<row height="2450" width="800">
+<!--<row height="2450" width="800">-->
+<row height="2450" width="690">
+  <fkey action="TAB"></fkey>
+  <key code="61"></key>
   <key code="10"></key>
   <key code="11"></key>
   <key code="12"></key>

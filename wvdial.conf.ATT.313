@@ -1,10 +1,10 @@
 [Dialer Defaults]
-Modem = /dev/ttyUSB0
+Modem = /dev/ttyUSB3
 Baud = 115200
 Init1 = ATH
 Init2 = ATE1
-#Tmobile
-Init3 = AT+CGDCONT=1,"IP","fast.t-mobile.com"
+#ATT Smartphone
+Init3 = AT+CGDCONT=1,"IP","phone"
 Dial Command = ATD
 Phone = *99***1#
 Stupid mode = yes

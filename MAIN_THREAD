@@ -1,43 +1,122 @@
 #!/bin/bash
 
-#no left click bug can be fixed by toggling ads7846 in xinput
+#set this to 1 if you are running on a model 6
+MODEL_6=0
 
-#there are three basic modes
-#these modes are activated by kde gestures and menu icons
-#left click mode, right click mode, web (middle click) mode
-#left click is the basic functionality which is usually default
-#right click allows 3 seconds for a simulated right click
-#web is the default and allows for kinetic scrolling in all apps
+#no left click bug can be fixed by toggling ads7846 in xinput
 
 #start secondary within kde itself
 
-#device specific
+#waveshare 5 inch
+#800 x 480
 #display_rotate=1
 #axes swap - 1
 #axes inversion - 0 1
 
+#waveshare 4 inch
+#480 x 800
+#no display rotate
+#axes swap - 0
+#axes inversion - 0 1
+
 #always write FLASH_MODE the first time
 FLASH_MODE_MEMORY=-1
+
+#set this here so it is outside the loop
+PERSISTENT_ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+PERSISTENT_ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep 313 | wc -l)
+PERSISTENT_ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep E398 | wc -l)
 
 BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
 if [ "$BOOT_STATUS" -eq "1" ]
 then
 #temporarily setup touchscreen
 xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation' 0
+if [ "$MODEL_6" -eq "1" ]
+then
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Axes Swap' 0
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Axis Inversion' 0 1
+fi
 #initial cellular configuration
 sudo rm /etc/wvdial.conf
 PROVIDER=$( kdialog --radiolist "Choose your cellular provider:" 1 "ATT" on 2 "ATT Prepaid" off 3 "Tmobile" off )
 if [ "$PROVIDER" -eq 1 ]
 then
+#att
+ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+if [ $ADAPTER_CHECK_1 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/mbim-network.conf.ATT /etc/mbim-network.conf
+fi
+ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep 313 | wc -l)
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
+#initial programming - only used temporarily
+#after this the 313 appears to remember the APN in flash
+sudo cp /home/pi/wvdial.conf.ATT.313 /etc/wvdial.conf
+sudo wvdial&
+sleep 3
+sudo killall wvdial
+fi
+ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep E398 | wc -l)
+if [ $ADAPTER_CHECK_3 -gt 0 ]
+then
+#continuous programming - used each boot
 sudo cp /home/pi/wvdial.conf.ATT /etc/wvdial.conf
+fi
 fi
 if [ "$PROVIDER" -eq 2 ]
 then
+#att prepaid
+ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+if [ $ADAPTER_CHECK_1 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/mbim-network.conf.ATTPREPAID /etc/mbim-network.conf
+fi
+ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep 313 | wc -l)
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
+#initial programming - only used temporarily
+#after this the 313 appears to remember the APN in flash
+sudo cp /home/pi/wvdial.conf.ATTPREPAID.313 /etc/wvdial.conf
+sudo wvdial&
+sleep 3
+sudo killall wvdial
+fi
+ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep E398 | wc -l)
+if [ $ADAPTER_CHECK_3 -gt 0 ]
+then
+#continuous programming - used each boot
 sudo cp /home/pi/wvdial.conf.ATTPREPAID /etc/wvdial.conf
+fi
 fi
 if [ "$PROVIDER" -eq 3 ]
 then
+#tmobile
+ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+if [ $ADAPTER_CHECK_1 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/mbim-network.conf.TMOBILE /etc/mbim-network.conf
+fi
+ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep 313 | wc -l)
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
+#initial programming - only used temporarily
+#after this the 313 appears to remember the APN in flash
+sudo cp /home/pi/wvdial.conf.TMOBILE.313 /etc/wvdial.conf
+sudo wvdial&
+sleep 3
+sudo killall wvdial
+fi
+ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep E398 | wc -l)
+if [ $ADAPTER_CHECK_3 -gt 0 ]
+then
+#continuous programming - used each boot
 sudo cp /home/pi/wvdial.conf.TMOBILE /etc/wvdial.conf
+fi
 fi
 if kdialog --title "Calibration Check" --warningcontinuecancel "Press Continue to calibrate the touchscreen or Cancel to continue setup"
 then
@@ -59,14 +138,21 @@ EVROUTER_COUNTER=100
 WVDIAL_COUNTER=100
 DRIVER_COUNTER=100
 
-#thermal and energy management section - disabled
+#thermal and energy management section
 #set cpu to max speed when load reaches 95%
 #works combined with arm_freq_min=500 in config.txt
 #sudo sh -c "echo '95' >> /sys/devices/system/cpu/cpufreq/ondemand/up_threshold"
+#disable ethernet - saves 50ma
+/home/pi/hub-ctrl.c/hub-ctrl -h 0 -P 1 -p 0
 
 URT=`kdialog --progressbar "Touchscreen Setup" 4`
-#xinput set-prop 'ADS7846 Touchscreen' 'Evdev Axes Swap' 1
-#xinput set-prop 'ADS7846 Touchscreen' 'Evdev Axis Inversion' 0 1
+#already set up for most models in 99-calibration.conf
+#4 and 5 inch are logically identical so have to specify
+if [ "$MODEL_6" -eq "1" ]
+then
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Axes Swap' 0
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Axis Inversion' 0 1
+fi
 xset -dpms
 sleep 2
 qdbus $URT Set "" value 1
@@ -112,7 +198,25 @@ qdbus $URT Set "" value 3
 
 qdbus $URT setLabelText "Network Setup"
 #initial startup to avoid faulty so and so died messages
+#decide what device is being used and set the dialup strategy
+ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+if [ $ADAPTER_CHECK_1 -gt 0 ]
+then
+sudo mbim-network /dev/cdc-wdm0 start
+sleep 2
+sudo dhclient wwan0
+fi
+ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep 313 | wc -l)
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
+sudo dhclient wwan0
+fi
+ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep E398 | wc -l)
+if [ $ADAPTER_CHECK_3 -gt 0 ]
+then
 sudo wvdial&
+fi
+#more touchscreen setup
 sudo rm /tmp/.evrouter\:0
 kdesudo evrouter /dev/input/event*
 qdbus $URT Set "" value 4
@@ -157,10 +261,39 @@ WVDIAL_COUNTER=0
 #BURT=$(ps aux | grep wvdial | wc -l)
 #if [ "$BURT" -lt 2 ]
 #mystery restart fix here and lines below
+#maintain 340 connection
+if [ $PERSISTENT_ADAPTER_CHECK_1 -gt 0 ]
+then
+CONNECTION_CHECK=$(sudo ifconfig -a | grep -w inet | wc -l)
+if [ $CONNECTION_CHECK -lt 2 ]
+then
+kdialog --passivepopup "MBIM died - Restarting" 1
+sudo mbim-network /dev/cdc-wdm0 start
+sudo dhclient wwan0
+fi
+fi
+#maintain 313 connection
+if [ $PERSISTENT_ADAPTER_CHECK_2 -gt 0 ]
+then
+CONNECTION_CHECK=$(sudo ifconfig -a | grep -w inet | wc -l)
+if [ $CONNECTION_CHECK -lt 2 ]
+then
+kdialog --passivepopup "AT based connection died - Restarting" 1
+sudo wvdial&
+sleep 3
+sudo killall wvdial
+sleep 10
+sudo dhclient wwan0
+fi
+fi
+#maintain 303 connection
+if [ $PERSISTENT_ADAPTER_CHECK_3 -gt 0 ]
+then
 if ! ps -C wvdial
 then
 kdialog --passivepopup "Wvdial died - Restarting" 1
 sudo wvdial&
+fi
 fi
 #KOPETE_CHECK=$(ps aux | grep kopete | wc -l)
 #if [ "$KOPETE_CHECK" -lt 2 ]

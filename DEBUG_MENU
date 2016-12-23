@@ -1,6 +1,6 @@
 #this assumes a us location with a non changing mcc and mnc
 
-CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Reset cellular connection" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time" off 5 "Toggle AI" off)
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Reset cellular connection" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time" off 5 "Toggle AI" off 6 "Enable ethernet" off)
 if [ "$CHOICE" -eq 1 ]
 then
 sudo killall wvdial
@@ -62,5 +62,10 @@ if [ "$AI_SWITCH" -eq 1 ]
 then
 echo "0" > /home/pi/AI_SWITCH
 fi
+fi
+
+if [ "$CHOICE" -eq 6 ]
+then
+/home/pi/hub-ctrl.c/hub-ctrl -h 0 -P 1 -p 1
 fi
 

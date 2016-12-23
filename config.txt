@@ -35,9 +35,14 @@ disable_overscan=1
 hdmi_group=2
 hdmi_mode=1
 hdmi_mode=87
+
+#uncomment for model 5 - comment for model 6
 hdmi_cvt 800 480 60 6 0 0 0
-#hdmi_cvt 480 800 60 6 0 0 0
 display_rotate=1
+
+#uncomment for model 6 - comment for model 5
+#hdmi_cvt 480 800 60 6 0 0 0
+#no display rotate
 
 # uncomment to increase signal to HDMI, if you have interference, blanking, or
 # no display

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#launch OSK if not already running
+
+#check if running
+if ps -C xvkbd
+then
+#if running then kill
+killall xvkbd
+exit
+fi
+
+#launch if not
+xvkbd&
+#this removes windows decorations aka the title bar
+#a ds file must be configured for devilspie to work
+devilspie&
+sleep 1
+killall devilspie
+

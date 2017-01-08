@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#start browser
+chromium-browser --ignore-certificate-errors
+

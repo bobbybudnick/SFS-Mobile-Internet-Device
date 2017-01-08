@@ -1,0 +1,110 @@
+#!/bin/bash
+
+#check we are not already running here
+LOCK_STATUS=$( awk '{ print }' /home/pi/LOCK_STATUS )
+if [ "$LOCK_STATUS" -eq "1" ]
+then
+exit
+fi
+
+#signal we are locked
+#this prevents the killall in MAIN_THREAD from running
+echo 1 > /home/pi/LOCK_STATUS
+
+COUNTDOWN=2
+RUN_TIMER=100
+
+while true
+do
+
+#minimize all visible windows to ensure unlock can happen
+#this is bugged in xfce
+#for i in $(xdotool search --onlyvisible --name "")
+#do xdotool windowminimize $i
+#done
+#this works in xfce
+wmctrl -k on
+xdotool key Escape
+
+#give good responsiveness by being outside timer
+#check if countdown should be decremented
+COUNTDOWN_CHECK=$( awk '{ print }' /home/pi/COUNTDOWN )
+echo $COUNTDOWN_CHECK
+if [ "$COUNTDOWN_CHECK" -eq "1" ]
+then
+echo 0 > /home/pi/COUNTDOWN
+COUNTDOWN=$(($COUNTDOWN-1))
+RUN_TIMER=100
+fi
+
+#give time for user input by using timer
+if [ "$RUN_TIMER" -gt "5" ]
+then
+RUN_TIMER=0
+
+#prevent memory leaks
+killall zenity
+
+#change gui position around to avoid pocket unlocks
+#get current notification location
+QUERY=$(xfconf-query --channel xfce4-notifyd --property /notify-location)
+#compute new notification location
+QUERY=$(($QUERY+1))
+if [ $QUERY -gt 3 ]
+then
+QUERY=0
+fi
+#set new notification location
+xfconf-query --channel xfce4-notifyd --property /notify-location --set $QUERY
+
+#check if it is time to unlock
+if [ "$COUNTDOWN" -lt "1" ]
+then
+#signal we are unlocked
+zenity --notification --window-icon="info" --text "Unlocked"&
+echo 0 > /home/pi/LOCK_STATUS
+exit
+fi
+
+#spawn unlock gui
+if zenity --notification --window-icon="info" --text "Click to unlock ($COUNTDOWN time(s))"
+then
+echo 1 > /home/pi/COUNTDOWN
+fi&
+
+#manage countdown timer for when unlock has been interacted with
+if [ "$COUNTDOWN" -lt "2" ]
+then
+COUNTDOWN_TIMER=$(($COUNTDOWN_TIMER+1))
+fi
+if [ "$COUNTDOWN" -ge "2" ]
+then
+COUNTDOWN_TIMER=0
+fi
+
+#check if countdown should be reset after a certain time
+if [ "$COUNTDOWN_TIMER" -gt "2" ]
+then
+COUNTDOWN=2
+fi
+
+#check if it is time to unlock
+if [ "$COUNTDOWN" -lt "1" ]
+then
+#signal we are unlocked
+zenity --notification --window-icon="info" --text "Unlocked"&
+echo 0 > /home/pi/LOCK_STATUS
+exit
+fi
+
+fi 
+
+RUN_TIMER=$(($RUN_TIMER+1))
+
+#this must correspond with xfce notification timeout
+#not anymore
+sleep 1
+
+done
+
+

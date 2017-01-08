@@ -1,0 +1,38 @@
+#xvkbd*Alt_R.width: 1
+#xvkbd*Alt_L.width: 1
+#xvkbd*Meta_L.width: 1
+#xvkbd*Meta_R.width: 1
+xvkbd*BackSpace.width: 30
+xvkbd*Return.width: 30
+xvkbd*space.width: 30
+xvkbd*Shift_R.width: 30
+xvkbd*Tab.width: 30
+xvkbd*windowGeometry: 500x300+0+400
+xvkbd*Font: 10x20
+xvkbd*keypad: false
+xvkbd*functionkey: false
+#xvkbd*1,11.width: 1
+#xvkbd*1,12.width: 1
+#xvkbd*1,13.width: 1
+#xvkbd*2,1.width: 1
+xvkbd.NormalKeys: \
+0 \n\
+Shift 1 2 3 4 5 6 7 8 9 0 BackSpace \n\
+q w e r t y u i o p \n\
+a s d f g h j k l Return \n\
+z x c v b n m space Up Down \n\
+
+xvkbd.ShiftKeys: \
+0 \n\
+Shift . - / Tab 5 6 7 8 9 0 BackSpace \n\
+Q W E R T Y U I O P \n\
+A S D F G H J K L Return \n\
+Z X C V B N M space Up Down \n\
+
+xvkbd.KeyLabels: \
+0 \n\
+Shift 1&. 2&- 3&/ 4&Tab 5 6 7 8 9 0 BackSpace \n\
+q w e r t y u i o p \n\
+a s d f g h j k l Return \n\
+z x c v b n m space Up Down \n\
+

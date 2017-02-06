@@ -23,10 +23,11 @@ MODEL_6=0
 #always write FLASH_MODE the first time
 FLASH_MODE_MEMORY=-1
 
-#set this here so it is outside the loop
-PERSISTENT_ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
-PERSISTENT_ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep 313 | wc -l)
-PERSISTENT_ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep E398 | wc -l)
+#set this here so it is outside the loop - not anymore
+#this is bugged - adapter must be undetectable during this time
+#PERSISTENT_ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+#PERSISTENT_ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep 313 | wc -l)
+#PERSISTENT_ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep E398 | wc -l)
 
 BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
 if [ "$BOOT_STATUS" -eq "1" ]
@@ -147,6 +148,7 @@ CELL_COUNTER=100
 EVROUTER_COUNTER=100
 WVDIAL_COUNTER=100
 DRIVER_COUNTER=100
+LEAK_COUNTER=0
 
 (
 
@@ -256,6 +258,11 @@ pidgin&
 linphone&
 icedove&
 
+echo "70"
+echo "# Miscellaneous Tasks"
+#remove to prevent disk space buildup
+sudo rm /home/pi/.xsession-errors
+
 )| zenity --progress --title="TEST1" --text="TEST2" --percentage=0
 
 while true
@@ -270,7 +277,8 @@ DRIVER_COUNTER=0
 DRIVER_CHECK=$(dmesg | grep irq | grep nobody | wc -l)
 if [ "$DRIVER_CHECK" -gt "1" ]
 then
-kdialog --passivepopup "Touchscreen driver died - taking no action" 1
+#kdialog --passivepopup "Touchscreen driver died - taking no action" 1
+zenity --notification --window-icon="info" --text "Touchscreen driver died - taking no action"&
 #kdialog --passivepopup "Touchscreen driver died - restarting" 1
 #sudo modprobe -r ads7846
 #sleep 1
@@ -285,19 +293,23 @@ fi
 
 #starts wvdial/kopete/linphone/icedove
 #keeps it running no matter what
-if [ "$WVDIAL_COUNTER" -gt 15 ]
+if [ "$WVDIAL_COUNTER" -gt 30 ]
 then
 WVDIAL_COUNTER=0
 #BURT=$(ps aux | grep wvdial | wc -l)
 #if [ "$BURT" -lt 2 ]
 #mystery restart fix here and lines below
+PERSISTENT_ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+PERSISTENT_ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep 313 | wc -l)
+PERSISTENT_ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep E398 | wc -l)
 #maintain 340 connection
 if [ $PERSISTENT_ADAPTER_CHECK_1 -gt 0 ]
 then
 CONNECTION_CHECK=$(sudo ifconfig -a | grep -w inet | wc -l)
 if [ $CONNECTION_CHECK -lt 2 ]
 then
-kdialog --passivepopup "MBIM died - Restarting" 1
+#kdialog --passivepopup "MBIM died - restarting" 1
+zenity --notification --window-icon="info" --text "MBIM died - restarting"&
 sudo mbim-network /dev/cdc-wdm0 start
 sudo dhclient wwan0
 fi
@@ -308,7 +320,8 @@ then
 CONNECTION_CHECK=$(sudo ifconfig -a | grep -w inet | wc -l)
 if [ $CONNECTION_CHECK -lt 2 ]
 then
-kdialog --passivepopup "AT based connection died - Restarting" 1
+#kdialog --passivepopup "AT based connection died - restarting" 1
+zenity --notification --window-icon="info" --text "AT based connection died - restarting"&
 sudo wvdial&
 sleep 3
 sudo killall wvdial
@@ -321,7 +334,8 @@ if [ $PERSISTENT_ADAPTER_CHECK_3 -gt 0 ]
 then
 if ! ps -C wvdial
 then
-kdialog --passivepopup "Wvdial died - Restarting" 1
+#kdialog --passivepopup "Wvdial died - restarting" 1
+zenity --notification --window-icon="info" --text "WVdial died - restarting"&
 sudo wvdial&
 fi
 fi
@@ -331,7 +345,8 @@ fi
 #if ! ps -C kopete
 if ! ps -C pidgin
 then
-kdialog --passivepopup "Messaging died - Restarting" 1
+#kdialog --passivepopup "Messaging died - restarting" 1
+zenity --notification --window-icon="info" --text "Messaging died - restarting"&
 #change below for gtk
 #kopete&
 pidgin&
@@ -340,14 +355,16 @@ fi
 #if [ "$LINPHONE_CHECK" -lt 2 ]
 if ! ps -C linphone
 then
-kdialog --passivepopup "Phone died - Restarting" 1
+#kdialog --passivepopup "Phone died - restarting" 1
+zenity --notification --window-icon="info" --text "Phone died - restarting"&
 linphone&
 fi
 #ICEDOVE_CHECK=$(ps aux | grep icedove | wc -l)
 #if [ "$ICEDOVE_CHECK" -lt 2 ]
 if ! ps -C icedove
 then
-kdialog --passivepopup "Email died - Restarting" 1
+#kdialog --passivepopup "Email died - restarting" 1
+zenity --notification --window-icon="info" --text "Email died - restarting"&
 icedove&
 fi
 fi
@@ -447,6 +464,15 @@ echo 0 > /home/pi/MESSAGE_RECEIVER_SIGNAL
 fi
 fi
 
+#deal with memory leaks - every day for the panel
+if [ "$LEAK_COUNTER" -gt 86400 ]
+then
+zenity --notification --window-icon="info" --text "Panel Restart"&
+killall xfce4-panel
+xfce4-panel&
+LEAK_COUNTER=0
+fi
+
 #try to avoid double clicks with onscreen keyboard
 #cannot detect when plasma keyboard is raised
 #can detect other regular on screen keyboard types
@@ -462,6 +488,7 @@ CELL_COUNTER=$(($CELL_COUNTER+1))
 #EVROUTER_COUNTER=$(($EVROUTER_COUNTER+1))
 WVDIAL_COUNTER=$(($WVDIAL_COUNTER+1))
 DRIVER_COUNTER=$(($DRIVER_COUNTER+1))
+LEAK_COUNTER=$(($LEAK_COUNTER+1))
 sleep 1
 
 done

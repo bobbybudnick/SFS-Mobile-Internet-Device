@@ -32,6 +32,10 @@ FLASH_MODE_MEMORY=-1
 BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
 if [ "$BOOT_STATUS" -eq "1" ]
 then
+zenity --notification --window-icon="info" --text "Standby - waiting for cellular device to settle"&
+sleep 5
+zenity --notification --window-icon="info" --text "Standby - waiting for cellular device to settle"&
+sleep 5
 #temporarily setup touchscreen
 xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation' 0
 if [ "$MODEL_6" -eq "1" ]
@@ -207,7 +211,7 @@ CHECKING=0
 fi
 sleep 1
 done
-sleep 10
+sleep 12
 #kdialog --passivepopup "Standby - enabling SMS" 1
 zenity --notification --window-icon="info" --text "Standby - enabling SMS"&
 sleep 1
@@ -263,7 +267,10 @@ echo "# Miscellaneous Tasks"
 #remove to prevent disk space buildup
 sudo rm /home/pi/.xsession-errors
 
-)| zenity --progress --title="TEST1" --text="TEST2" --percentage=0
+echo "100"
+echo "# Startup Complete"
+
+)| zenity --progress --pulsate --no-cancel --auto-close --title="TEST1" --text="TEST2" --percentage=0
 
 while true
 do
@@ -470,6 +477,8 @@ then
 zenity --notification --window-icon="info" --text "Panel Restart"&
 killall xfce4-panel
 xfce4-panel&
+sleep 1
+xdotool search --name Buddy windowunmap
 LEAK_COUNTER=0
 fi
 

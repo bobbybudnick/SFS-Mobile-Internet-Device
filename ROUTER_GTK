@@ -23,7 +23,7 @@ sudo ifconfig eth0 up
 sudo ifconfig eth0 192.168.1.1
 
 #pass traffic from subnet to subnet
-#sudo sh -c "echo '1' >> /proc/sys/net/ipv4/ip_forward"
+sudo sh -c "echo '1' >> /proc/sys/net/ipv4/ip_forward"
 
 #don't block any traffic to or from the lan specifically
 #an inverse rule does not make sense here

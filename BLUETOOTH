@@ -1,0 +1,12 @@
+ACTION=$(zenity --list --title="Bluetooth" --column="Actions" Send Receive)
+
+if [ "$ACTION" = "Send" ]
+then
+/home/pi/BLUETOOTH_SEND
+fi
+
+if [ "$ACTION" = "Receive" ]
+then
+/home/pi/BLUETOOTH_RECEIVE
+fi
+

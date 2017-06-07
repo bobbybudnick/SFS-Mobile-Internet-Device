@@ -1,0 +1,23 @@
+#bobby budnick land right here
+disable_overscan=1
+hdmi_group=2
+hdmi_mode=1
+hdmi_mode=87
+#model 6
+hdmi_cvt 480 800 60 6 0 0 0
+display_rotate=0
+#uncomment for model 5
+#hdmi_cvt 800 480 60 6 0 0 0
+#display_rotate=1
+dtparam=spi=on
+dtparam=i2c1=on
+dtparam=i2c_arm=on
+dtparam=i2c_vc=on
+dtoverlay=ads7846,cs=1,penirq=25,penirq_pull=2,speed=50000,keep_vref_on=0
+dtoverlay=w1-gpio-pullup,gpiopin=4,extpullup=1
+
+gpu_mem=32
+dtparam=audio=on
+max_usb_current=1
+kernel=kernel8.img
+

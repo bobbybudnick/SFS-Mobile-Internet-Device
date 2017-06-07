@@ -1,0 +1,11 @@
+[Favorites]
+FavoriteURLs=/usr/share/applications/kde4/dolphin.desktop,/home/pi/.local/share/applications/Modem Manager (as root).desktop,/usr/share/applications/kde4/konsole.desktop,/home/pi/.local/share/applications/Screen Calibration.desktop,/usr/share/applications/kde4/kamerka.desktop,/home/pi/.local/share/applications/Silence-Clamor.desktop
+
+[KRunner]
+loadAll=false
+
+[KRunner][PlasmaRunnerManager]
+pluginWhiteList=places,shell,services,bookmarks,recentdocuments,locations
+
+[RecentlyUsed]
+Applications=kde4-kopete.desktop,kde4-systemsettings.desktop,linphone.desktop,kde4-konsole.desktop

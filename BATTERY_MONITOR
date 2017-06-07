@@ -1,0 +1,22 @@
+#2000 is about 4.2V which is possibly full charge
+#no way to know true state of charge with just voltage
+
+#echo this into system display as user battery monitor
+
+#set pin 28 to ALT0 mode for older firmware
+#physical pin 28 is wiringpi pin 31
+#pin 27 should already be set by firmware by default
+gpio mode 31 ALT0
+
+VOLTAGE_RAW=$(sudo python /home/pi/simpletest.py)
+
+if [ $VOLTAGE_RAW -lt 1500 ]
+then
+echo "Debug - possible battery depletion"
+#we would shut down here under production conditions
+fi
+
+if [ $VOLTAGE_RAW -ge 1500 ]
+then
+echo "Debug - possible battery nominal"
+fi

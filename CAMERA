@@ -1,0 +1,28 @@
+if ! kdialog --title "Camera App - Intro" --warningcontinuecancel "Press Continue to run the camera app"
+then
+exit
+fi
+
+#initial light setup
+gpio mode 28 out
+
+#turn light on
+gpio write 28 1
+
+sudo /opt/vc/bin/raspistill --vflip --hflip -p 105,70,275,275 -t 0 -o ~/PHOTOS/"`date`".jpg -s&
+if ! kdialog --title "Camera App - Operation" --warningcontinuecancel "Press Continue to take a photo"
+then
+sudo killall raspistill
+exit
+fi  
+
+#otherwise do this
+#tell raspistill to take a photo
+sudo pkill -SIGUSR1 raspistill
+aplay /usr/share/sounds/pop.wav
+sleep 1
+sudo killall raspistill
+
+#turn light off
+gpio write 28 0
+

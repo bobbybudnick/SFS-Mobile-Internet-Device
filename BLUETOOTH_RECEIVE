@@ -1,0 +1,36 @@
+echo 1 > /home/pi/LOCK_STATUS
+
+#bluetoothd -C is for legacy mode
+#bluetoothctl can be used interactively instead of hciconfig
+#obexpushd -B25 -n is for unused bluetooth channel
+
+sudo /etc/init.d/bluetooth stop
+sudo bluetoothd -C&
+sudo hciconfig hci0 up
+sudo hciconfig hci0 piscan
+sudo rm nohup.out
+sudo nohup obexpushd -B25 -n&
+
+echo 0 > /home/pi/BLUETOOTH_STATUS
+while true
+do
+BLUETOOTH_STATUS=$( awk '{ print }' /home/pi/BLUETOOTH_STATUS )
+if [ $BLUETOOTH_STATUS -eq 1 ]
+then
+sudo killall bluetoothd
+sudo killall obexpushd
+sudo /etc/init.d/bluetooth restart
+echo 0 > /home/pi/LOCK_STATUS
+exit
+fi
+LIST=$(sudo cat /home/pi/nohup.out | tail -n +6)
+#killall zenity
+killall kdialog
+#if zenity --question --text "Transfered files: $LIST - Press yes to exit"
+if kdialog --title "Bluetooth" --warningcontinuecancel "Transfered files: $LIST - press continue to exit"
+then
+echo 1 > /home/pi/BLUETOOTH_STATUS
+fi&
+sleep 5
+done
+

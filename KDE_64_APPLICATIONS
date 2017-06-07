@@ -1,0 +1,2 @@
+sudo apt-get install xinput linphone alsa-utils usb-modeswitch automake xinput-calibrator wvdial xdotool psmisc devilspie xvkbd build-essential g++ libboost-serialization-dev libdbus-glib-1-dev intltool xserver-xorg-dev libgtkmm-2.4-dev libx11-dev libxtst-dev gammu kde-plasma-desktop kopete kdesudo kuser thunderbird modemmanager feh wmctrl libusb-dev bluez obexpushd ark kamerka modem-manager-gui
+

@@ -1,0 +1,48 @@
+echo 1 > /home/pi/LOCK_STATUS
+
+#zenity --notification --window-icon="info" --text "Standby while scanning"&
+kdialog --passivepopup "Standby while scanning" 1
+
+sudo hciconfig hci0 up
+SCAN=$(hcitool scan)
+RESULTS=$(echo "$SCAN" | grep '' -n)
+#RESULTS=$(echo "$SCAN")
+#zenity --info --text="$RESULTS"
+kdialog --msgbox "$RESULTS"
+
+#CHOICE_INDEX=$(zenity --entry --title="Device Selection" --text="Select number of device to connect to")
+CHOICE_INDEX=$(kdialog --title "Device Selection" --inputbox "Select number of device to connect to")
+echo $CHOICE_INDEX
+CHOICE_INDEX_ADJUST=$(($CHOICE_INDEX + 0))
+#CHOICE=$(echo "$SCAN" | tail -n$CHOICE_INDEX_ADJUST | head -n1)
+CHOICE=$(echo "$RESULTS" | eval "sed '"$CHOICE_INDEX_ADJUST"q;d'")
+CHOICE_ID=$(echo $CHOICE | cut -c3-20)
+
+SERVICES=$(sdptool browse $CHOICE_ID)
+#get line number where push is first mentioned
+#search for term with line numbers visible
+#choose just line number
+#choose just first line which should be first occurence - revert
+#LINE=$(echo "$SERVICES" | grep Push -n | cut -d':' -f1 | head -n1)
+#choose next to last instead to deal with buggy channels
+LINE=$(echo "$SERVICES" | grep Push -n | cut -d':' -f1 | tail -n -2 | head -n1)
+#select lines starting with line we want and take 20 lines after
+EXCERPT=$(echo "$SERVICES" | tail -n +$LINE | head -n20)
+echo "$EXCERPT"
+#search selection for channel number
+CHANNEL=$(echo "$EXCERPT" | grep Channel | cut -d':' -f2)
+
+#ussp-push $CHOICE_ID@12 /home/pi/TESTFILE.txt TESTFILE.txt
+#FILE=$(zenity --file-selection --title="Select the file you want to send")
+FILE=$(kdialog --title "Select the file you want to send" --getopenfilename /home/pi)
+#this only works when selecting straight from the home folder
+FILENAME=$(echo $FILE | cut -d'/' -f4)
+#send as a text file to bypass any device security
+#echo $CHOICE_ID
+#echo $CHANNEL
+#echo $FILE
+#echo $FILENAME
+ussp-push $CHOICE_ID@"$CHANNEL" $FILE $FILENAME.txt
+
+echo 0 > /home/pi/LOCK_STATUS
+

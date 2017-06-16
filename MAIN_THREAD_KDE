@@ -1,0 +1,466 @@
+#!/bin/bash
+
+#no left click bug can be fixed by toggling ads7846 in xinput
+
+#always write FLASH_MODE the first time
+FLASH_MODE_MEMORY=-1
+
+BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
+if [ "$BOOT_STATUS" -eq "1" ]
+then
+#zenity --notification --window-icon="info" --text "Standby - waiting for cellular device to settle"&
+kdialog --passivepopup "Standby - waiting for cellular device to settle" 1
+sleep 5
+#zenity --notification --window-icon="info" --text "Standby - waiting for cellular device to settle"&
+kdialog --passivepopup "Standby - waiting for cellular device to settle" 1
+sleep 5
+#temporarily setup touchscreen
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation' 0
+#initial cellular configuration
+sudo rm /etc/wvdial.conf
+PROVIDER=$( kdialog --radiolist "Choose your cellular provider:" 1 "ATT" on 2 "ATT Prepaid" off 3 "Tmobile" off )
+#PROVIDER=$(zenity --list --title="Choose your cellular provider" --column="Providers" ATT "ATT Prepaid" Tmobile)
+if [ "$PROVIDER" -eq 1 ]
+#if [ "$PROVIDER" = "ATT" ]
+then
+#att
+echo ATT > /home/pi/PROVIDER
+ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+if [ $ADAPTER_CHECK_1 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/mbim-network.conf.ATT /etc/mbim-network.conf
+fi
+ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/wvdial.conf.ATT /etc/wvdial.conf
+fi
+fi
+if [ "$PROVIDER" -eq 2 ]
+#if [ "$PROVIDER" = "ATT Prepaid" ]
+then
+#att prepaid
+echo ATT_PREPAID > /home/pi/PROVIDER
+ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+if [ $ADAPTER_CHECK_1 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/mbim-network.conf.ATTPREPAID /etc/mbim-network.conf
+fi
+ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/wvdial.conf.ATTPREPAID /etc/wvdial.conf
+fi
+fi
+if [ "$PROVIDER" -eq 3 ]
+#if [ "$PROVIDER" = "Tmobile" ]
+then
+#tmobile
+echo TMOBILE > /home/pi/PROVIDER
+ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+if [ $ADAPTER_CHECK_1 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/mbim-network.conf.TMOBILE /etc/mbim-network.conf
+fi
+ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
+#continuous programming - used each boot
+sudo cp /home/pi/wvdial.conf.TMOBILE /etc/wvdial.conf
+fi
+fi
+#screen calibration package fix #2
+#if kdialog --title "Calibration Check" --warningcontinuecancel "Press Continue to calibrate the touchscreen or Cancel to continue setup"
+#if zenity --question --text "Press yes to calibrate and no to continue setup"
+#then
+#konsole --noclose -e xinput_calibrator
+#xfce4-terminal -H -e xinput_calibrator
+#kdialog --msgbox "Press OK when calibration is complete"
+#zenity --info --text="Press OK when calibration is complete"
+#fi
+feh -x -. /home/pi/GESTURES.jpg&
+kdialog --msgbox "Press OK when finished reviewing gestures tutorial"
+#zenity --info --text="Press OK when finished reviewing gestures tutorials"
+echo "0" > /home/pi/FIRST_BOOT
+kdialog --passivepopup "Your system is configured - rebooting" 1
+#zenity --info --text="Your system is configured - press OK to reboot"
+sudo sync
+sudo reboot
+fi
+
+echo "1" > /home/pi/CONTROL2
+
+CELL_COUNTER=100
+#EVROUTER_COUNTER=100
+WVDIAL_COUNTER=100
+#DRIVER_COUNTER=100
+#LEAK_COUNTER=0
+
+#(
+
+URT=`kdialog --progressbar "Thermal and Energy Management Setup" 4`
+#echo "10"
+#echo "# Thermal and Energy Management Setup"
+#set cpu to max speed when load reaches 95%
+#works combined with arm_freq_min=500 in config.txt
+#sudo sh -c "echo '95' >> /sys/devices/system/cpu/cpufreq/ondemand/up_threshold"
+#disable ethernet - saves 50ma
+/home/pi/hub-ctrl.c/hub-ctrl -h 0 -P 1 -p 0
+sleep 1
+qdbus $URT Set "" value 1
+
+qdbus $URT setLabelText "Touchscreen Setup"
+#echo "20"
+#echo "# Touchscreen Setup"
+#99-calibration.conf sets up for kde - change below for gtk
+#for kde now too
+#this also sets up hold to right click like on windows
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation Button' 3
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation Timeout' 750
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation' 1
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation Threshold' 100
+xset -dpms
+#change below for gtk - and kde now too
+#start easystroke for DE independent gesture recognition
+easystroke&
+sleep 1
+qdbus $URT Set "" value 2
+
+qdbus $URT setLabelText "Audio Setup"
+#echo "30"
+#echo "# Audio Setup"
+amixer -c 0 sset PCM playback 100%
+amixer -c 1 sset Mic capture 100%
+sleep 1
+qdbus $URT Set "" value 3
+
+qdbus $URT setLabelText "Network Setup"
+#echo "40"
+#echo "# Network Setup"
+#prestart modem manager
+#all these iterations did not work
+#MODEM_OUTPUT=$(sudo ModemManager&)
+#sudo ModemManager > /run/shm/MODEM&
+#sudo ModemManager 2>&1 /run/shm/MODEM&
+sudo ModemManager 2>&1 | cat > /run/shm/MODEM&
+#wait for modem manager to create the virtual modem within dbus
+TIMEOUT_COUNTER=0
+MODEM_STATUS=0
+while [  "$MODEM_STATUS" -lt "1" ]
+do
+MODEM_STATUS=$(cat /run/shm/MODEM | grep success | wc -l)
+if [ "$MODEM_STATUS" -eq "1" ]
+then
+#enable the modem
+sleep 5
+sudo mmcli -m 0 -e
+fi
+if [ "$TIMEOUT_COUNTER" -gt "60" ]
+then
+kdialog --passivepopup "ModemManager failed - must reboot" 1
+sleep 1
+sudo reboot
+fi
+TIMEOUT_COUNTER=$(($TIMEOUT_COUNTER+1))
+sleep 1
+done
+#initial startup to avoid faulty so and so died messages
+#decide what device is being used and set the dialup strategy
+ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+if [ $ADAPTER_CHECK_1 -gt 0 ]
+then
+sudo mbim-network /dev/cdc-wdm0 start
+sleep 2
+sudo dhclient wwan0
+fi
+ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
+sudo wvdial&
+fi
+ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep 313 | wc -l)
+ADAPTER_CHECK_4=$(lsusb -v | grep Product | grep 308 | wc -l)
+#this is an or statement
+if [ $ADAPTER_CHECK_4 -gt 0 ] || [ $ADAPTER_CHECK_3 -gt 0 ]
+then
+#these next two devices are transitional between dialup and mbim
+#this usually needs special initialization with minicom or other
+#also minicom can be used to switch auto connect to primary apn
+#this is why some devices seem to connect to data automatically
+#so we'll let modemmanager take care of it
+#we could echo directly to the device instead of modemmanager
+#this also means it needs no initial setup
+#data connection dies after a while if idle - seems to be feature
+#to reconnect after idling disable/reeneable/connect
+PROVIDER=$( awk '{ print }' /home/pi/PROVIDER )
+if [ "$PROVIDER" = "ATT" ]
+then
+sudo mmcli -m 0 --simple-connect="apn=phone"&
+fi
+if [ "$PROVIDER" = "ATT_PREPAID" ]
+then
+sudo mmcli -m 0 --simple-connect="apn=broadband"&
+fi
+if [ "$PROVIDER" = "TMOBILE" ]
+then
+sudo mmcli -m 0 --simple-connect="apn=fast.t-mobile.com"&
+fi
+sleep 10
+sudo timeout 10s dhclient wwan0
+fi
+qdbus $URT Set "" value 4
+
+qdbus $URT setLabelText "Application Startup"
+#echo "50"
+#echo "# Application Startup"
+#prevent modem manager as root from crashing by deleting config
+sudo rm -r /root/.local/share/modem-manager-gui
+kdesudo modem-manager-gui&
+#make root sms database world readable so cat can read it
+sudo chmod -R 777 /root/
+kopete&
+#pidgin&
+linphone&
+thunderbird&
+qdbus $URT Set "" value 5
+#kdialog --passivepopup "Enable cellular device in Modem Manager to finish boot" 1
+
+#echo "60"
+#echo "# Miscellaneous Tasks"
+#remove to prevent disk space buildup - needed for gtk
+#sudo rm /home/pi/.xsession-errors
+
+#echo "100"
+#echo "# Startup Complete"
+
+#)| zenity --progress --pulsate --no-cancel --auto-close --title="TEST1" --text="TEST2" --percentage=0
+
+while true
+do
+
+#keeps the touchscreen driver running well no matter what
+#this fixes touchscreen input failure after sleeping
+#disabling irq #505/irq 505 nobody cared
+#if [ "$DRIVER_COUNTER" -gt 60 ]
+#then
+DRIVER_COUNTER=0
+DRIVER_CHECK=$(dmesg | grep irq | grep nobody | wc -l)
+if [ "$DRIVER_CHECK" -gt "1" ]
+then
+kdialog --passivepopup "Touchscreen driver died - taking no action" 1
+#zenity --notification --window-icon="info" --text "Touchscreen driver died - taking no action"&
+#kdialog --passivepopup "Touchscreen driver died - restarting" 1
+#sudo modprobe -r ads7846
+#sleep 1
+#sudo modprobe ads7846
+#sleep 1
+#sudo killall evrouter
+#sleep 5
+#dmesg > /home/pi/DMESG_BACKUP
+#sudo dmesg -c
+fi
+#fi
+
+#starts wvdial/kopete/linphone/icedove
+#keeps it running no matter what
+if [ "$WVDIAL_COUNTER" -gt 30 ]
+then
+WVDIAL_COUNTER=0
+#BURT=$(ps aux | grep wvdial | wc -l)
+#if [ "$BURT" -lt 2 ]
+#mystery restart fix here and lines below
+PERSISTENT_ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+PERSISTENT_ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+PERSISTENT_ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep 313 | wc -l)
+PERSISTENT_ADAPTER_CHECK_4=$(lsusb -v | grep Product | grep 308 | wc -l)
+#maintain 340 connection
+if [ $PERSISTENT_ADAPTER_CHECK_1 -gt 0 ]
+then
+CONNECTION_CHECK=$(sudo ifconfig -a | grep -w inet | wc -l)
+if [ $CONNECTION_CHECK -lt 2 ]
+then
+kdialog --passivepopup "MBIM died - restarting" 1
+#zenity --notification --window-icon="info" --text "MBIM died - restarting"&
+sudo mbim-network /dev/cdc-wdm0 start
+sudo dhclient wwan0
+fi
+fi
+#maintain 303 connection
+if [ $PERSISTENT_ADAPTER_CHECK_2 -gt 0 ]
+then
+if ! ps -C wvdial
+then
+kdialog --passivepopup "Wvdial died - restarting" 1
+#zenity --notification --window-icon="info" --text "WVdial died - restarting"&
+sudo wvdial&
+fi
+fi
+#maintain 308 and 313 connection
+#this is also for when connection is not ready at bootup
+#this is an or statement
+if [ $PERSISTENT_ADAPTER_CHECK_4 -gt 0 ] || [ $PERSISTENT_ADAPTER_CHECK_3 ]
+then
+CONNECTION_CHECK=$(sudo ifconfig -a | grep -w inet | wc -l)
+if [ $CONNECTION_CHECK -lt 2 ]
+then
+kdialog --passivepopup "Restarting modemmanager-based connection" 1
+PROVIDER=$( awk '{ print }' /home/pi/PROVIDER )
+if [ "$PROVIDER" = "ATT" ]
+then
+sudo mmcli -m 0 --simple-connect="apn=phone"&
+fi
+if [ "$PROVIDER" = "ATT_PREPAID" ]
+then
+sudo mmcli -m 0 --simple-connect="apn=broadband"&
+fi
+if [ "$PROVIDER" = "TMOBILE" ]
+then
+sudo mmcli -m 0 --simple-connect="apn=fast.t-mobile.com"&
+fi
+sleep 10
+sudo timeout 10s dhclient wwan0
+fi
+fi
+
+#KOPETE_CHECK=$(ps aux | grep kopete | wc -l)
+#if [ "$KOPETE_CHECK" -lt 2 ]
+#change below for gtk
+if ! ps -C kopete
+#if ! ps -C pidgin
+then
+kdialog --passivepopup "Messaging died - restarting" 1
+#zenity --notification --window-icon="info" --text "Messaging died - restarting"&
+#change below for gtk
+kopete&
+#pidgin&
+fi
+#LINPHONE_CHECK=$(ps aux | grep linphone | wc -l)
+#if [ "$LINPHONE_CHECK" -lt 2 ]
+if ! ps -C linphone
+then
+kdialog --passivepopup "Phone died - restarting" 1
+#zenity --notification --window-icon="info" --text "Phone died - restarting"&
+linphone&
+fi
+#ICEDOVE_CHECK=$(ps aux | grep icedove | wc -l)
+#if [ "$ICEDOVE_CHECK" -lt 2 ]
+if ! ps -C thunderbird
+then
+kdialog --passivepopup "Email died - restarting" 1
+#zenity --notification --window-icon="info" --text "Email died - restarting"&
+thunderbird&
+fi
+fi
+
+#change below for gtk
+#starts evrouter and keeps it running no matter what
+#if [ "$EVROUTER_COUNTER" -gt 3 ]
+#then
+#EVROUTER_COUNTER=0
+#URT=$(ps aux | grep evrouter | wc -l)
+##if [ "$URT" -lt 2 ]
+#if ! ps -C evrouter
+#then
+#kdialog --passivepopup "Evrouter died - Restarting" 1
+#sudo rm /tmp/.evrouter\:0
+#kdesudo evrouter /dev/input/event*
+#fi
+#fi
+
+#sends an AT query to the cellular device for signal
+#a delay here causes the secondary not to catch the signal
+#if [ "$CELL_COUNTER" -gt 15 ]
+#then
+#CELL_COUNTER=0
+#disabled for new signal strength routine
+#sudo echo -e -n 'AT+CSQ\r' > /dev/ttyUSB2
+#fi
+
+if [ "$CELL_COUNTER" -gt 30 ]
+then
+CELL_COUNTER=0
+#build convenience popup data
+#xfce notification timeout should be around ??? seconds now???
+#setup gammu
+#truncate -s 0 /run/user/HOOT
+#timeout 10s gammu monitor > /run/user/HOOT
+#query for signal - gammu
+#RESULTANT_1=`cat /run/user/HOOT | grep -m 1 signal`
+#query for signal - modemmanager
+RESULTANT_1=`mmcli -m 0 --simple-status | grep signal`
+#check number of unread messages - gammu
+#RESULTANT_2=`cat /run/user/HOOT | grep -m 1 Phone | cut -c31-39`
+#check number of unread messages - modemmanager
+#check root sms but if kdesudo not running check user sms
+RESULTANT_2=`cat /root/.local/share/modem-manager-gui/devices/*/sms.gdbm | grep -a '<read>0' | wc -l`
+if ! ps -C kdesudo
+then
+RESULTANT_2=`cat /home/pi/.local/share/modem-manager-gui/devices/*/sms.gdbm | grep -a '<read>0' | wc -l`
+fi
+#read linphone history for missed calls
+#alternate - show more call detail but less number of calls
+#RESULTANT_3=`cat /home/pi/.linphonerc | grep -A1 status=2 | grep from`
+RESULTANT_3=`cat /home/pi/.linphonerc | grep -A1 status=2 | grep from | cut -d ":" -f2 | cut -c1-10`
+#display convenience popup
+kdialog --passivepopup "$RESULTANT_1/Unread SMS:$RESULTANT_2/Missed Calls:$RESULTANT_3" 1
+#LOCK_STATUS=$( awk '{ print }' /home/pi/LOCK_STATUS )
+#if [ $LOCK_STATUS -lt 1 ]
+#then
+#killall zenity
+#if zenity --notification --window-icon="question" --text "$RESULTANT_1/Unread SMS:$RESULTANT_2/Missed Calls:$RESULTANT_3"
+#then
+#echo 1 > /home/pi/MOVE_NOTIFICATION
+#fi&
+#fi
+#MOVE_NOTIFICATION=$( awk '{ print }' /home/pi/MOVE_NOTIFICATION )
+#if [ $MOVE_NOTIFICATION -gt 0 ]
+#then
+#echo 0 > /home/pi/MOVE_NOTIFICATION
+#get current notification location
+#QUERY=$(xfconf-query --channel xfce4-notifyd --property /notify-location)
+#compute new notification location
+#QUERY=$(($QUERY+1))
+#if [ $QUERY -gt 3 ]
+#then
+#QUERY=0
+#fi
+#set new notification location
+#xfconf-query --channel xfce4-notifyd --property /notify-location --set $QUERY
+#fi
+fi
+
+#deal with memory leaks - every day for the panel
+#if [ "$LEAK_COUNTER" -gt 86400 ]
+#then
+#zenity --notification --window-icon="info" --text "Panel Restart"&
+#killall xfce4-panel
+#xfce4-panel&
+#sleep 1
+#xdotool search --name Buddy windowunmap
+#LEAK_COUNTER=0
+#fi
+
+#try to avoid double clicks with onscreen keyboard
+#cannot detect when plasma keyboard is raised
+#can detect other regular on screen keyboard types
+#instead just use a dedicated (left) mode when inputting text
+#xprop | grep TYPE | grep OVERRIDE - was closest
+#but this interfered with kde gestures
+#xprop -root _NET_ACTIVE_WINDOW - failed
+#wmctl -a :ACTIVE: -v - failed
+#xdotool getactivewindow getwindowname - failed
+
+CELL_COUNTER=$(($CELL_COUNTER+1))
+#EVROUTER_COUNTER=$(($EVROUTER_COUNTER+1))
+WVDIAL_COUNTER=$(($WVDIAL_COUNTER+1))
+#DRIVER_COUNTER=$(($DRIVER_COUNTER+1))
+#LEAK_COUNTER=$(($LEAK_COUNTER+1))
+sleep 1
+
+done
+

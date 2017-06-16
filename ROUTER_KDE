@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#DEPENDENCIES: dnsmasq, iftop and zenity
+
+#determine WAN port
+WAN=ppp0
+WAN_CHECK=$(sudo ifconfig | grep wwan0 | wc -l)
+if [ $WAN_CHECK -gt 0 ]
+then
+WAN=wwan0
+fi
+if ! kdialog --title "Calibration Check" --warningcontinuecancel "Press continue to run the router app"
+#if ! zenity --question --text "Press Continue to run the router app"
+then
+exit
+fi
+
+#read -p "Press y to continue" -n 1 -r
+#if [[ $REPLY =~ ^[Yy]$ ]]
+#then
+
+#set ethernet ip manually and ppp0 is automatic from wvdial
+sudo ifconfig eth0 up
+sudo ifconfig eth0 192.168.1.1
+
+#pass traffic from subnet to subnet
+sudo sh -c "echo '1' >> /proc/sys/net/ipv4/ip_forward"
+
+#don't block any traffic to or from the lan specifically
+#an inverse rule does not make sense here
+#because things go to and from ppp0 freely because it is router
+#no it is supposed to block all on wan until a rule is made
+sudo iptables -A FORWARD -i eth0 -j ACCEPT
+sudo iptables -A FORWARD -o eth0 -j ACCEPT
+
+#all traffic is translated going out of ppp0
+sudo iptables -t nat -A POSTROUTING -o $WAN -j MASQUERADE
+
+#traffic forwarding which specifically unblocks also?
+#sudo iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 80 -J DNAT--to 192.168.1.10:80
+
+sudo iftop -p -i $WAN
+
+echo "Shutting Down Router"
+sudo ifconfig eth0 0.0.0.0
+sudo ifconfig eth0 down
+
+#fi #read
+

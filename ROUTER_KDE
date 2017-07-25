@@ -30,8 +30,9 @@ sudo sh -c "echo '1' >> /proc/sys/net/ipv4/ip_forward"
 #an inverse rule does not make sense here
 #because things go to and from ppp0 freely because it is router
 #no it is supposed to block all on wan until a rule is made
-sudo iptables -A FORWARD -i eth0 -j ACCEPT
-sudo iptables -A FORWARD -o eth0 -j ACCEPT
+#redundant - accepted by default
+#sudo iptables -A FORWARD -i eth0 -j ACCEPT
+#sudo iptables -A FORWARD -o eth0 -j ACCEPT
 
 #all traffic is translated going out of ppp0
 sudo iptables -t nat -A POSTROUTING -o $WAN -j MASQUERADE

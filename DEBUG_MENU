@@ -5,7 +5,7 @@
 CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Update time with NTP" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time without NTP" off 5 "Enable ethernet" off)
 if [ "$CHOICE" -eq 1 ]
 then
-pi@devuan:~$ sudo ntpdate time.nist.gov
+sudo ntpdate time.nist.gov
 kdialog --msgbox "Time should sync soon - do dpkg-reconfigure tzdata to set timezone"
 fi
 if [ "$CHOICE" -eq 2 ]

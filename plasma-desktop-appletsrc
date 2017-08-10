@@ -4,12 +4,18 @@ RightButton;NoModifier=contextmenu
 wheel:Vertical;NoModifier=switchdesktop
 
 [AppletGlobals][plasma_applet_launcher]
+Modem Manager (as root)=
+Screen Calibration=
+Silence-Clamor=
 debian-uxterm=
 debian-xterm=
 easystroke=
+firefox-esr=
 icedove=
-kde4-ark=2017-05-06
+iceweasel=
+kde4-ark=
 kde4-dolphin=
+kde4-kamerka=
 kde4-kfind=
 kde4-kinfocenter=
 kde4-klipper=
@@ -18,16 +24,16 @@ kde4-konqbrowser=
 kde4-konsole=
 kde4-kopete=
 kde4-ksysguard=
-kde4-kuser=2017-05-05
+kde4-kuser=
 kde4-kwrite=
 kde4-nepomukbackup=
 kde4-nepomukcleaner=
 kde4-superkaramba=
 kde4-systemsettings=
 linphone=
-modem-manager-gui=2017-05-05
+modem-manager-gui=
 qupzilla=2017-05-06
-thunderbird=2017-05-05
+thunderbird=
 vim=
 vlc=
 xinput_calibrator=
@@ -37,7 +43,7 @@ activity=
 activityId=
 desktop=-1
 formfactor=2
-geometry=0,-59,480,53
+geometry=0,-66,480,60
 immutability=1
 lastDesktop=-1
 lastScreen=0
@@ -50,7 +56,7 @@ zvalue=0
 RightButton;NoModifier=contextmenu
 
 [Containments][1][Applets][12]
-geometry=342,4,36,49
+geometry=328,4,36,56
 immutability=2
 plugin=quicklaunch
 zvalue=0
@@ -63,8 +69,8 @@ launchersOnPopup=
 Order=4
 
 [Containments][1][Applets][2]
-geometry=0,4,49,49
-immutability=2
+geometry=0,4,56,56
+immutability=1
 plugin=launcher
 zvalue=0
 
@@ -72,8 +78,8 @@ zvalue=0
 Order=0
 
 [Containments][1][Applets][4]
-geometry=53,4,0,49
-immutability=2
+geometry=60,4,0,56
+immutability=1
 plugin=pager
 zvalue=0
 
@@ -84,7 +90,7 @@ hideWhenSingleDesktop=true
 Order=1
 
 [Containments][1][Applets][5]
-geometry=57,4,227,49
+geometry=64,4,143,56
 immutability=2
 plugin=tasks
 zvalue=0
@@ -109,7 +115,7 @@ Items=
 Order=2
 
 [Containments][1][Applets][6]
-geometry=288,4,50,49
+geometry=211,4,113,56
 immutability=2
 plugin=systemtray
 zvalue=0
@@ -124,15 +130,6 @@ ShowUnknown=true
 alwaysShown=Kopete,org.kde.notifications
 hidden=notifier
 
-[Containments][1][Applets][6][Configuration][Applets][10]
-geometry=0,0,24,24
-immutability=1
-plugin=notifier
-zvalue=0
-
-[Containments][1][Applets][6][Configuration][Applets][10][Shortcuts]
-global=
-
 [Containments][1][Applets][6][Configuration][Applets][11]
 geometry=0,0,24,24
 immutability=1
@@ -140,7 +137,7 @@ plugin=org.kde.notifications
 zvalue=0
 
 [Containments][1][Applets][6][Configuration][Applets][11][PopupApplet]
-DialogHeight=92
+DialogHeight=88
 DialogWidth=328
 
 [Containments][1][Applets][6][Configuration][Applets][11][Shortcuts]
@@ -156,17 +153,64 @@ SystemTray-Klipper-6=Ctrl+Alt+V
 Order=3
 
 [Containments][1][Applets][7]
-geometry=382,4,98,49
+geometry=368,4,112,56
 immutability=2
 plugin=digital-clock
 zvalue=0
 
+[Containments][1][Applets][7][Configuration]
+announceInterval=0
+calendarType=-1
+dateStyle=0
+defaultTimezone=Local
+displayEvents=true
+displayHolidays=true
+holidaysRegions=us_en-us
+holidaysRegionsDaysOff=us_en-us
+plainClockDrawShadow=true
+plainClockFont=DejaVu Sans,12,-1,5,50,0,0,0,0,0
+showSeconds=false
+showTimezone=false
+timeZones=UTC
+timezone=Local
+useCustomColor=false
+useCustomShadowColor=false
+
 [Containments][1][Applets][7][LayoutInformation]
 Order=5
 
+[Containments][1][Applets][7][PopupApplet]
+DialogHeight=224
+DialogWidth=408
+
 [Containments][1][Configuration]
-maximumSize=480,53
-minimumSize=480,53
+maximumSize=480,60
+minimumSize=480,60
+
+[Containments][13]
+ActionPluginsSource=Global
+activity=Desktop
+activityId=b28585e1-72d4-4a27-8c54-031bc2f5feeb
+desktop=-1
+formfactor=0
+geometry=0,956,480,800
+immutability=1
+lastDesktop=-1
+lastScreen=0
+location=0
+plugin=desktop
+screen=0
+wallpaperplugin=image
+wallpaperpluginmode=SingleImage
+zvalue=0
+
+[Containments][13][Wallpaper][image]
+slideTimer=10
+slidepaths=
+userswallpapers=
+wallpaper=/usr/share/wallpapers/Elarun
+wallpapercolor=0,0,0
+wallpaperposition=0
 
 [Containments][8]
 ActionPluginsSource=Global
@@ -180,7 +224,7 @@ lastDesktop=-1
 lastScreen=0
 location=0
 plugin=desktop
-screen=0
+screen=-1
 wallpaperplugin=image
 wallpaperpluginmode=SingleImage
 zvalue=0

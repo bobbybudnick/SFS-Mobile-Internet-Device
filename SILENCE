@@ -5,14 +5,16 @@ VOLUME_LEVEL=$(amixer | grep dB | cut -d '%' -f1 | cut -d'[' -f2)
 #if less than 50 then set to clamor
 if [ $VOLUME_LEVEL -lt 50 ]
 then
-zenity --notification --window-icon="info" --text "Clamor Mode"&
+#zenity --notification --window-icon="info" --text "Clamor Mode"&
+kdialog --passivepopup "Clamor Mode" 1
 amixer -c 0 sset PCM playback 100%
 exit
 fi
 #if greater than or equal to 50 then set to silent
 if [ $VOLUME_LEVEL -ge 50 ]
 then
-zenity --notification --window-icon="info" --text "Silence Mode"&
+#zenity --notification --window-icon="info" --text "Silence Mode"&
+kdialog --passivepopup "Silence Mode" 1
 amixer -c 0 sset PCM playback 0%
 exit
 fi

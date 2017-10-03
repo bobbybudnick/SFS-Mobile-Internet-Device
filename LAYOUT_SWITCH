@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#read Xvkbd and check for presence of SNES in comments
+LAYOUT_CHECK=$(cat /home/pi/XVkbd | grep SNES | wc -l)
+#if SNES layout found then set standard layout
+echo $LAYOUT_CHECK
+if [ $LAYOUT_CHECK -gt 0 ]
+then
+#zenity --notification --window-icon="info" --text "Clamor Mode"&
+kdialog --passivepopup "Standard OSK Layout" 1
+cp /home/pi/XVkbd.STANDARD /home/pi/XVkbd
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation' 1
+exit
+fi
+#if SNES layout not found then set to SNES layout
+if [ $LAYOUT_CHECK -le 0 ]
+then
+#zenity --notification --window-icon="info" --text "Silence Mode"&
+kdialog --passivepopup "SNES OSK Layout" 1
+cp /home/pi/XVkbd.SNES /home/pi/XVkbd
+xinput set-prop 'ADS7846 Touchscreen' 'Evdev Third Button Emulation' 0
+exit
+fi
+

@@ -1,0 +1,49 @@
+#SNES
+#xvkbd*Alt_R.width: 1
+#xvkbd*Alt_L.width: 1
+#xvkbd*Meta_L.width: 1
+#xvkbd*Meta_R.width: 1
+#xvkbd*a.width: 30
+#xvkbd*f.width: 30
+#xvkbd*s.width: 30
+#xvkbd*x.width: 30
+#xvkbd*d.width: 30
+#xvkbd*c.width: 30
+xvkbd*Up.width: 30
+xvkbd*Down.width: 30
+xvkbd*Left.width: 30
+xvkbd*Right.width: 30
+xvkbd*BackSpace.width: 30
+xvkbd*Return.width: 30
+xvkbd*space.width: 30
+xvkbd*Shift_R.width: 30
+xvkbd*Tab.width: 30
+xvkbd*windowGeometry: 500x150+0+0
+xvkbd*Font: 10x20
+xvkbd*keypad: false
+xvkbd*functionkey: false
+#xvkbd*1,11.width: 1
+#xvkbd*1,12.width: 1
+#xvkbd*1,13.width: 1
+#xvkbd*2,1.width: 1
+xvkbd.NormalKeys: \
+0 \n\
+a Return Tab f \n\
+Up s \n\
+Left Right x d \n\
+Down c \n\
+
+xvkbd.ShiftKeys: \
+0 \n\
+a Return Tab f \n\
+Up s \n\
+Left Right x d \n\
+Down c \n\
+
+xvkbd.KeyLabels: \
+0 \n\
+a Return Tab f \n\
+Up s \n\
+Left Right x d \n\
+Down c \n\
+

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+LOCK_STATUS=$(cat /home/pi/LOCK_STATUS)
+if [ $LOCK_STATUS -eq "1" ]
+then
+echo 0 > /home/pi/LOCK_STATUS
+exit
+fi
+
+echo 1 > /home/pi/LOCK_STATUS
+
+while true
+do
+
+kdialog --passivepopup "Locked - gesture to unlock" 1
+
+wmctrl -k on
+xdotool key Escape
+
+LOCK_STATUS=$(cat /home/pi/LOCK_STATUS)
+if [ $LOCK_STATUS -eq "0" ]
+then
+kdialog --passivepopup "Unlocked" 1
+exit
+fi
+
+sleep 5
+done
+

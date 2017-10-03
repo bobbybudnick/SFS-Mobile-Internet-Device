@@ -1,0 +1,11 @@
+[Favorites]
+FavoriteURLs=/usr/share/applications/kde4/konqbrowser.desktop,/usr/share/applications/kde4/dolphin.desktop,/usr/share/applications/kde4/konsole.desktop,/home/pi/.local/share/applications/Layout Switch.desktop,/home/pi/.local/share/applications/Screen Calibration.desktop,/home/pi/.local/share/applications/Silence-Clamor.desktop,/home/pi/.local/share/applications/Zero Frontend.desktop
+
+[KRunner]
+loadAll=false
+
+[KRunner][PlasmaRunnerManager]
+pluginWhiteList=places,shell,services,bookmarks,recentdocuments,locations
+
+[RecentlyUsed]
+Applications=kde4-konsole.desktop,kde4-systemsettings.desktop

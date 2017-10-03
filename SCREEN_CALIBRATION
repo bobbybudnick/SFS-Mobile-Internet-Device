@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#second backup with a different name that this does not touch
+#old instead of backup
+
+#convenience popup lockout on
+#this keeps the main thread from killing this app suddenly
+echo 1 > /home/pi/LOCK_STATUS
+
+#run calibration
+#CALIBRATION=$(xinput_calibrator --device "ADS7846 Touchscreen" | grep InputClass -A5)
+CALIBRATION=$(xinput_calibrator --device "ADS7846 Touchscreen" | tail -n 6)
+
+#check for zero size faulty calibration
+CALIBRATION_SIZE=$(echo -n $CALIBRATION | wc -c)
+if [ $CALIBRATION_SIZE -lt 1 ]
+then
+exit
+fi
+
+#create calibration directory in case it does not exist
+sudo mkdir /etc/X11/xorg.conf.d
+
+#ask to make permanent
+#advise to check screen edges before continuing
+if kdialog --title "Calibration Check" --warningcontinuecancel "Make changes permanent? Check screen edges."
+#if zenity --question --text "Make changes permanent? Check screen edges."
+then
+#create calibration
+#printf needed so we get new lines
+printf "$CALIBRATION" > /home/pi/99-calibration.conf
+#backup old calibration
+sudo cp /etc/X11/xorg.conf.d/99-calibration.conf /etc/X11/xorg.conf.d/99-calibration.conf.backup
+#copy current calibration
+sudo cp /home/pi/99-calibration.conf /etc/X11/xorg.conf.d/99-calibration.conf
+fi
+

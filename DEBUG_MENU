@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#this assumes a us location with a non changing mcc and mnc
+
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Update time with NTP" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time without NTP" off 5 "Enable ethernet" off)
+if [ "$CHOICE" -eq 1 ]
+then
+sudo ntpdate time.nist.gov
+kdialog --msgbox "Time should sync soon - do dpkg-reconfigure tzdata to set timezone"
+fi
+if [ "$CHOICE" -eq 2 ]
+then
+echo 0 > FLASH_MODE
+echo 0 > SECURE_BLINKING
+kdialog --msgbox "variables have been zeroed and should stop light if no missed communications"
+fi
+if [ "$CHOICE" -eq 3 ]
+then
+
+#sed -i '10s/.*/      "locationAreaCode": 99999,/' TEST.json
+
+#extract cell id from mmcli
+CELL_ID=$(sudo mmcli --location-get -m 0 | cut -d ":" -f2 | head -n7 | tail -n 1 | tr -d \')
+#extract lac from mmcli
+LAC=$(sudo mmcli --location-get -m 0 | cut -d ":" -f2 | head -n6 | tail -n 1 | tr -d \')
+#edit JSON request file with both cell id and lac
+#eval needed for sed to interpret variables
+eval "sed -i '9s/.*/      "cellId": $CELL_ID,/' TEST.json"
+eval "sed -i '10s/.*/      "locationAreaCode": $LAC,/' TEST.json"
+
+#send request
+LOCATION=$(curl -k -d @TEST.json -H "Content-Type: application/json" -i "https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAOJrU_GJIPDyULw50Jrvu7qrydwED5tYA")
+
+kdialog --msgbox "$LOCATION"
+
+#if kdialog --title "Logging" --warningcontinuecancel "`echo $LOCATION`"
+if kdialog --title "Logging" --warningcontinuecancel "Press continue to log to file"
+then
+echo $LOCATION >> LOCATION
+fi
+fi
+
+if [ "$CHOICE" -eq 4 ]
+then
+TIME=$(nc time.nist.gov 13)
+
+TIME_1=$(echo "$TIME" | cut -d' ' -f2)
+TIME_2=$(echo "$TIME" | cut -d' ' -f3)
+
+FORMATTED_TIME="$TIME_1 $TIME_2 UTC ET -5"
+
+#echo $FORMATTED_TIME
+kdialog --msgbox "$FORMATTED_TIME"
+fi
+
+if [ "$CHOICE" -eq 5 ]
+then
+/home/pi/hub-ctrl.c/hub-ctrl -h 0 -P 1 -p 1
+fi
+

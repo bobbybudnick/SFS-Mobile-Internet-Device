@@ -1,0 +1,12 @@
+[%General]
+Driver=QMYSQL
+
+[QMYSQL]
+Name=akonadi
+Host=
+Options="UNIX_SOCKET=/tmp/akonadi-pi.fFiLZa/mysql.socket"
+ServerPath=/usr/sbin/mysqld
+StartServer=false
+
+[Debug]
+Tracer=null

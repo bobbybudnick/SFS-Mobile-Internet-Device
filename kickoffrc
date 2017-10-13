@@ -1,5 +1,5 @@
 [Favorites]
-FavoriteURLs=/usr/share/applications/firefox-esr.desktop,/usr/share/applications/kde4/dolphin.desktop,/usr/share/applications/kde4/konsole.desktop,/home/pi/.local/share/applications/Screen Calibration.desktop,/usr/share/applications/kde4/kamerka.desktop,/home/pi/.local/share/applications/Silence-Clamor.desktop
+FavoriteURLs=/usr/share/applications/firefox-esr.desktop,/usr/share/applications/kde4/dolphin.desktop,/usr/share/applications/kde4/konsole.desktop,/home/pi/.local/share/applications/Screen Calibration.desktop,/usr/share/applications/kde4/kamerka.desktop,/home/pi/.local/share/applications/Silence-Clamor.desktop,/home/pi/.local/share/applications/Layout Switch.desktop,/home/pi/.local/share/applications/Bluetooth.desktop,/home/pi/.local/share/applications/Numpty.desktop,/home/pi/.local/share/applications/Pinball.desktop,/usr/share/applications/ltris.desktop
 
 [KRunner]
 loadAll=false
@@ -8,4 +8,4 @@ loadAll=false
 pluginWhiteList=places,shell,services,bookmarks,recentdocuments,locations
 
 [RecentlyUsed]
-Applications=kde4-kamerka.desktop,Silence-Clamor.desktop,kde4-konqbrowser.desktop,kde4-dolphin.desktop,kde4-konsole.desktop
+Applications=kde4-dolphin.desktop,kde4-systemsettings.desktop,Bluetooth.desktop,Layout Switch.desktop,kde4-konsole.desktop

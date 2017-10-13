@@ -1,0 +1,6 @@
+killall easystroke
+
+pinball
+
+easystroke & disown
+

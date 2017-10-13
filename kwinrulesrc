@@ -1,23 +1,92 @@
 [1]
-Description=Window settings for xvkbd
+Description=Application settings for ltris
 clientmachine=devuan
 clientmachinematch=0
-noborder=true
-noborderrule=2
-position=0,450
+position=0,0
 positionrule=2
-title=xvkbd - Virtual Keyboard
-titlematch=1
-types=1
-wmclass=xvkbd
+size=528,880
+sizerule=2
+types=4294967295
+wmclass=ltris
 wmclasscomplete=false
 wmclassmatch=1
 
 [2]
+Description=Application settings for systemsettings
+clientmachine=devuan
+clientmachinematch=0
+size=528,827
+sizerule=2
+types=4294967295
+wmclass=systemsettings
+wmclasscomplete=false
+wmclassmatch=1
+
+[3]
+Description=Application settings for konsole
+clientmachine=devuan
+clientmachinematch=0
+position=0,0
+positionrule=2
+size=528,530
+sizerule=2
+types=4294967295
+wmclass=konsole
+wmclasscomplete=false
+wmclassmatch=1
+
+[4]
+Description=Window settings for modem-manager-gui
+clientmachine=devuan
+clientmachinematch=0
+position=0,0
+positionrule=2
+size=528,530
+sizerule=2
+title=Modem Manager GUI
+titlematch=1
+types=1
+wmclass=modem-manager-gui
+wmclasscomplete=false
+wmclassmatch=1
+
+[5]
+Description=Application settings for\s
+above=true
+aboverule=2
+clientmachine=localhost
+clientmachinematch=0
+noborder=true
+noborderrule=2
+position=0,530
+positionrule=2
+size=528,290
+sizerule=2
+types=4294967295
+wmclass=
+wmclasscomplete=false
+wmclassmatch=1
+
+[6]
+Description=Application settings for bsnes
+above=true
+aboverule=2
+clientmachine=devuan
+clientmachinematch=0
+size=528,480
+sizerule=2
+types=4294967295
+wmclass=bsnes
+wmclasscomplete=false
+wmclassmatch=1
+
+[7]
 Description=Window settings for linphone
 clientmachine=devuan
 clientmachinematch=0
-size=480,505
+position=0,0
+positionrule=2
+size=528,530
 sizerule=2
 title=Linphone
 titlematch=1
@@ -26,7 +95,7 @@ wmclass=linphone
 wmclasscomplete=false
 wmclassmatch=1
 
-[3]
+[8]
 Description=(Default) Disable focus stealing prevention for XV
 fsplevel=0
 fsplevelrule=2
@@ -36,4 +105,4 @@ wmclasscomplete=true
 wmclassmatch=3
 
 [General]
-count=3
+count=8

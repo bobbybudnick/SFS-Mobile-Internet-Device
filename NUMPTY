@@ -1,0 +1,6 @@
+killall easystroke
+
+numptyphysics -geometry 528x770
+
+easystroke & disown
+

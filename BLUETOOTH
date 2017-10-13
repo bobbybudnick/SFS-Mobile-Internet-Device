@@ -3,7 +3,7 @@
 #currently they can not live together on the same 64 bit system
 
 #ACTION=$(zenity --list --title="Bluetooth" --column="Actions" Send Receive)
-ACTION=$( kdialog --radiolist "Bluetooth" 1 "Send" on 2 "Receive" Off)
+ACTION=$( kdialog --radiolist "Bluetooth" 1 "Send" on 2 "Receive" Off 3 "Input Config" Off)
 
 #if [ "$ACTION" = "Send" ]
 if [ "$ACTION" -eq 1 ]
@@ -15,5 +15,11 @@ fi
 if [ "$ACTION" -eq 2 ]
 then
 /home/pi/BLUETOOTH_RECEIVE
+fi
+
+if [ "$ACTION" -eq 3 ]
+then
+kdialog --passivepopup "Bluetooth config - standby" 10
+echo 1 > /home/pi/SCAN_STATUS
 fi
 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#no need to start from rc.local because bluetoothd handles console bluetooth keyboards
+#once paired the keyboard should connect automatically after pressing a button
+
 CHOSEN_DEVICE=0
 LOG_COUNTER=0
 #RECONNECT_COUNTER=0
@@ -10,8 +13,13 @@ echo 0 > /home/pi/SCAN_STATUS
 #fire up bluetoothctl controlled by tmux
 tmux new-session -d -s ServerFault 'sudo bluetoothctl -a |& tee /run/shm/BLUETOOTH_OUTPUT'
 sleep 3
+#check if there are any active pairings
+PERSISTENT_CHECK=$(sudo sh -c 'ls -l /var/lib/bluetooth/*' | grep : | wc -l)
+if [ $PERSISTENT_CHECK -lt 1 ]
+then
 tmux send-keys -t ServerFault -l 'power off'
 tmux send-keys -t ServerFault Enter
+fi
 
 while true
 do
@@ -77,7 +85,6 @@ eval "tmux send-keys -t ServerFault -l 'connect $TARGET_ADDRESS'"
 tmux send-keys -t ServerFault Enter
 else
 #must use else here because ne - usually inverse of eq does not work
-echo "Powering off to save power"
 tmux send-keys -t ServerFault -l 'power off'
 tmux send-keys -t ServerFault Enter
 fi

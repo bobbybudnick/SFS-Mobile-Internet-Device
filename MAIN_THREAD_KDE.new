@@ -13,6 +13,8 @@ FLASH_MODE_MEMORY=-1
 BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
 if [ "$BOOT_STATUS" -eq "1" ]
 then
+#remove stale bluetooth references
+sudo sh -c 'rm -r /var/lib/bluetooth/*'
 #zenity --notification --window-icon="info" --text "Standby - waiting for cellular device to settle"&
 kdialog --passivepopup "Standby - waiting for cellular device to settle" 1
 sleep 5
@@ -251,6 +253,12 @@ qdbus $URT Set "" value 5
 
 #echo "100"
 #echo "# Startup Complete"
+#auto close progress dialog
+killall kdialog
+#wait for a few seconds so modem manager can get started
+sleep 10
+#minimize open applications
+wmctrl -k on
 
 #)| zenity --progress --pulsate --no-cancel --auto-close --title="TEST1" --text="TEST2" --percentage=0
 
@@ -262,21 +270,21 @@ do
 #disabling irq #505/irq 505 nobody cared
 #if [ "$DRIVER_COUNTER" -gt 60 ]
 #then
-DRIVER_COUNTER=0
+#DRIVER_COUNTER=0
 DRIVER_CHECK=$(dmesg | grep irq | grep nobody | wc -l)
 if [ "$DRIVER_CHECK" -gt "1" ]
 then
-kdialog --passivepopup "Touchscreen driver died - taking no action" 1
+#kdialog --passivepopup "Touchscreen driver died - taking no action" 1
 #zenity --notification --window-icon="info" --text "Touchscreen driver died - taking no action"&
-#kdialog --passivepopup "Touchscreen driver died - restarting" 1
-#sudo modprobe -r ads7846
-#sleep 1
-#sudo modprobe ads7846
+kdialog --passivepopup "Touchscreen driver died - restarting" 1
+sudo modprobe -r ads7846
+sleep 1
+sudo modprobe ads7846
 #sleep 1
 #sudo killall evrouter
 #sleep 5
-#dmesg > /home/pi/DMESG_BACKUP
-#sudo dmesg -c
+dmesg > /home/pi/DMESG_BACKUP
+sudo dmesg -c
 fi
 #fi
 
@@ -299,7 +307,7 @@ then
 CONNECTION_CHECK=$(sudo ifconfig -a | grep -w inet | wc -l)
 if [ $CONNECTION_CHECK -lt 2 ]
 then
-kdialog --passivepopup "MBIM IP was lost - restarting" 1
+kdialog --passivepopup "Restarting MBIM-based connection / Reason: Lack of IP" 1
 echo 0 > /home/pi/SIGNAL_READOUT
 #zenity --notification --window-icon="info" --text "MBIM died - restarting"&
 sudo mbim-network /dev/cdc-wdm0 start
@@ -308,10 +316,11 @@ sudo dhclient wwan0
 fi
 #check for general loss of connection
 #when the route command hangs we are not connected
-GATEWAY_CHECK=$(sudo timeout 5 route | grep default | wc -l)
+#timeout can be tuned here
+GATEWAY_CHECK=$(sudo timeout 7 route | grep default | wc -l)
 if [ $GATEWAY_CHECK -lt 1 ]
 then
-kdialog --passivepopup "MBIM connection was lost - restarting" 1
+kdialog --passivepopup "Restarting MBIM-based connection / Reason: Lack of Gateway" 1
 echo 0 > /home/pi/SIGNAL_READOUT
 sudo mbim-network /dev/cdc-wdm0 start
 sudo killall dhclient
@@ -323,7 +332,7 @@ if [ $ADAPTER_CHECK_2 -gt 0 ]
 then
 if ! ps -C wvdial
 then
-kdialog --passivepopup "Wvdial died - restarting" 1
+kdialog --passivepopup "Restarting wvdial-based connection / Reason: wvdial died" 1
 echo 0 > /home/pi/SIGNAL_READOUT
 #zenity --notification --window-icon="info" --text "WVdial died - restarting"&
 sudo wvdial&
@@ -331,6 +340,10 @@ fi
 fi
 #maintain 308 and 313 connection
 #this is also for when connection is not ready at bootup
+#determine modem number - these devices disconnect/renumber randomly
+MODEM_NUMBER=$(mmcli -L | cut -c39)
+#determine cellular provider
+PROVIDER=$( awk '{ print }' /home/pi/PROVIDER )
 #this is an or statement
 if [ $ADAPTER_CHECK_4 -gt 0 ] || [ $ADAPTER_CHECK_3 -gt 0 ]
 then
@@ -338,28 +351,81 @@ then
 CONNECTION_CHECK=$(sudo ifconfig -a | grep -w inet | wc -l)
 if [ $CONNECTION_CHECK -lt 2 ]
 then
-kdialog --passivepopup "Restarting modemmanager-based connection" 1
+kdialog --passivepopup "Restarting modemmanager-based connection / Reason: Lack of IP" 1
 echo 0 > /home/pi/SIGNAL_READOUT
-PROVIDER=$( awk '{ print }' /home/pi/PROVIDER )
+#connection routine for modemmanager-based devices
 if [ "$PROVIDER" = "ATT" ]
 then
-sudo mmcli -m 0 --simple-connect="apn=phone"&
+sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=phone"&
 fi
 if [ "$PROVIDER" = "ATT_PREPAID" ]
 then
-sudo mmcli -m 0 --simple-connect="apn=broadband"&
+sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=broadband"&
 fi
 if [ "$PROVIDER" = "TMOBILE" ]
 then
-sudo mmcli -m 0 --simple-connect="apn=fast.t-mobile.com"&
+sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=fast.t-mobile.com"&
 fi
 sleep 10
 sudo killall dhclient
 sudo timeout 10s dhclient wwan0
 fi
+#this is the newest method
+CARRIER_CHECK=$(cat /sys/class/net/wwan0/carrier)
+if [ $CARRIER_CHECK -lt 1 ]
+then
+kdialog --passivepopup "Restarting modemmanager-based connection / Reason: Lack of Carrier" 1
+echo 0 > /home/pi/SIGNAL_READOUT
+sudo mmcli -m $MODEM_NUMBER -d
+sudo mmcli -m $MODEM_NUMBER -e
+#connection routine for modemmanager-based devices
+if [ "$PROVIDER" = "ATT" ]
+then
+sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=phone"&
+fi
+if [ "$PROVIDER" = "ATT_PREPAID" ]
+then
+sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=broadband"&
+fi
+if [ "$PROVIDER" = "TMOBILE" ]
+then
+sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=fast.t-mobile.com"&
+fi
+sudo killall dhclient
+sudo dhclient wwan0
+fi
+#this way does not work
+#because we can get into a state where he have valid ip and route
+#however the cellular device is disconnected
+#check for general loss of connection
+#when the route command hangs we are not connected
+#timeout can be tuned here
+#GATEWAY_CHECK=$(sudo timeout 7 route | grep default | wc -l)
+#if [ $GATEWAY_CHECK -lt 1 ]
+#then
+#kdialog --passivepopup "Restarting modemmanager-based connection / Reason: Lack of Gateway" 1
+#echo 0 > /home/pi/SIGNAL_READOUT
+#sudo mmcli -m $MODEM_NUMBER -d
+#sudo mmcli -m $MODEM_NUMBER -e
+#connection routine for modemmanager-based devices
+#if [ "$PROVIDER" = "ATT" ]
+#then
+#sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=phone"&
+#fi
+#if [ "$PROVIDER" = "ATT_PREPAID" ]
+#then
+#sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=broadband"&
+#fi
+#if [ "$PROVIDER" = "TMOBILE" ]
+#then
+#sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=fast.t-mobile.com"&
+#fi
+#sudo killall dhclient
+#sudo dhclient wwan0
+#fi
 #check for sierra_net driver signaling an unwanted idle
 #only a problem with devices that do not auto connect to apn
-#seems bugged -  even if not the route check approach may be better
+#this way seems bugged - sierra_idle may be a red herring
 #NEW_IDLE_COUNT=$(dmesg | grep sierra | grep idle | wc -l)
 #if [ $NEW_IDLE_COUNT -gt $OLD_IDLE_COUNT ]
 #then
@@ -456,8 +522,10 @@ CELL_COUNTER=0
 #timeout 10s gammu monitor > /run/user/HOOT
 #query for signal - gammu
 #RESULTANT_1=`cat /run/user/HOOT | grep -m 1 signal`
+#determine modem number - for devices that disconnect/renumber randomly
+MODEM_NUMBER=$(mmcli -L | cut -c39);
 #query for signal - modemmanager
-RESULTANT_1=`mmcli -m 0 --simple-status | grep signal | cut -c29-30 | tr '\'\' ' '`
+RESULTANT_1=`mmcli -m $MODEM_NUMBER --simple-status | grep signal | cut -c29-30 | tr '\'\' ' '`
 #decide how many signal bars to signal for
 if [ "$RESULTANT_1" -gt 40 ]
 then

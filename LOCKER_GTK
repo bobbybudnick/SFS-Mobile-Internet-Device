@@ -9,10 +9,16 @@ fi
 
 echo 1 > /home/pi/LOCK_STATUS
 
+#keep from blowing your pants off
+sudo sh -c "echo 'powersave' >> /sys/devices/system/cpu/cpufreq/policy0/scaling_governor"
+#try to prevent filesystem errors if something goes bad in your pocket
+sudo mount -o remount,sync /
+
+#move to outside loop to allow for logged errors to stay in message log
+kdialog --passivepopup "Locked - gesture to unlock" 99999
+
 while true
 do
-
-kdialog --passivepopup "Locked - gesture to unlock" 1
 
 wmctrl -k on
 xdotool key Escape
@@ -21,6 +27,8 @@ LOCK_STATUS=$(cat /home/pi/LOCK_STATUS)
 if [ $LOCK_STATUS -eq "0" ]
 then
 kdialog --passivepopup "Unlocked" 1
+sudo sh -c "echo 'ondemand' >> /sys/devices/system/cpu/cpufreq/policy0/scaling_governor"
+sudo mount -o remount,async /
 exit
 fi
 

@@ -18,7 +18,7 @@ dtparam=i2c1=on
 dtparam=i2c_arm=on
 dtparam=i2c_vc=on
 dtoverlay=ads7846,cs=1,penirq=25,penirq_pull=2,speed=50000,keep_vref_on=0
-dtoverlay=w1-gpio-pullup,gpiopin=4,extpullup=1
+#dtoverlay=w1-gpio-pullup,gpiopin=4,extpullup=1
 dtoverlay=hifiberry-dac
 dtoverlay=i2s-mmap
 dtoverlay=pi3-disable-bt

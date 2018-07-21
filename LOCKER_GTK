@@ -1,0 +1,45 @@
+#!/bin/bash
+
+LOCK_STATUS=$(cat /home/pi/LOCK_STATUS)
+if [ $LOCK_STATUS -eq "1" ]
+then
+echo 0 > /home/pi/LOCK_STATUS
+exit
+fi
+
+echo 1 > /home/pi/LOCK_STATUS
+
+#keep from blowing your pants off
+#sudo sh -c "echo 'powersave' >> /sys/devices/system/cpu/cpufreq/policy0/scaling_governor"
+#for odroid c0 - conservative is 300 mhz - ondemand is 100 mhz
+sudo sh -c "echo 'conservative' >> /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+
+#try to prevent filesystem errors if something goes bad in your pocket
+sudo mount -o remount,sync /
+
+#move to outside loop to allow for logged errors to stay in message log
+kdialog --passivepopup "Locked - gesture to unlock" 99999
+
+while true
+do
+
+LOCK_STATUS=$(cat /home/pi/LOCK_STATUS)
+if [ $LOCK_STATUS -eq "0" ]
+then
+kdialog --passivepopup "Unlocked" 1
+sudo sh -c "echo 'performance' >> /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+sudo mount -o remount,async /
+xset dpms force on
+xset -dpms
+exit
+fi
+
+wmctrl -k on
+#disabled because it wakes screen - maybe it will work without
+#xdotool key Escape
+#monitor_onoff needs to be setup in boot.ini for this to work
+xset dpms force off
+
+sleep 5
+done
+

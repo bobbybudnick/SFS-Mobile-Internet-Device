@@ -1,0 +1,16 @@
+pcm.!default {
+	type plug
+	slave.pcm "adafruit"
+}
+
+ctl.!default {
+type hw card 2
+}
+
+pcm.adafruit {
+	type softvol
+	slave.pcm "plughw:2,0"
+	control.name "toot"
+	control.card 2
+}
+

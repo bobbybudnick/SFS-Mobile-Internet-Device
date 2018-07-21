@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#second backup with a different name that this does not touch
+#old instead of backup
+
+#convenience popup lockout on
+#this keeps the main thread from killing this app suddenly
+echo 1 > /home/pi/LOCK_STATUS
+
+#this should fire only if a waveshare screen is connected by usb
+#ads7846 can still be specified and created without working hardware
+#usb devices cannot be created without working hardware
+#thus if the waveshare device is found then this is a model 11
+SCREEN_CHECK=$(xinput list | grep WaveShare | wc -l)
+if [ $SCREEN_CHECK -gt 0 ]
+then
+#run calibration
+echo "USB"
+CALIBRATION=$(xinput_calibrator --device "WaveShare WS170120" | tail -n 6)
+else
+echo "SPI"
+CALIBRATION=$(xinput_calibrator --device "ADS7846 Touchscreen" | tail -n 6)
+fi
+
+#CALIBRATION=$(xinput_calibrator --device "ADS7846 Touchscreen" | grep InputClass -A5)
+
+#check for zero size faulty calibration
+CALIBRATION_SIZE=$(echo -n $CALIBRATION | wc -c)
+if [ $CALIBRATION_SIZE -lt 1 ]
+then
+exit
+fi
+
+#create calibration directory in case it does not exist
+sudo mkdir /etc/X11/xorg.conf.d
+
+#ask to make permanent
+#advise to check screen edges before continuing
+if kdialog --title "Calibration Check" --warningcontinuecancel "Make changes permanent? Check screen edges."
+#if zenity --question --text "Make changes permanent? Check screen edges."
+then
+#create calibration
+#printf needed so we get new lines
+printf "$CALIBRATION" > /home/pi/99-calibration.conf
+#backup old calibration
+sudo cp /etc/X11/xorg.conf.d/99-calibration.conf /etc/X11/xorg.conf.d/99-calibration.conf.backup
+#copy current calibration
+sudo cp /home/pi/99-calibration.conf /etc/X11/xorg.conf.d/99-calibration.conf
+fi
+

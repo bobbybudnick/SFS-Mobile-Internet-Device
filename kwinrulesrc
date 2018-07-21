@@ -1,0 +1,137 @@
+[1]
+Description=Application settings for qupzilla
+clientmachine=odroid-jessie
+clientmachinematch=0
+size=486,747
+sizerule=2
+wmclass=qupzilla browser qupzilla
+wmclasscomplete=true
+wmclassmatch=1
+
+[10]
+Description=Window settings for linphone
+clientmachine=devuan
+clientmachinematch=0
+position=0,0
+positionrule=2
+size=480,520
+sizerule=2
+title=Linphone
+titlematch=1
+types=1
+wmclass=linphone
+wmclasscomplete=false
+wmclassmatch=1
+
+[11]
+Description=(Default) Disable focus stealing prevention for XV
+fsplevel=0
+fsplevelrule=2
+wmclass=^xv .*
+wmclasscomplete=true
+wmclassmatch=3
+
+[2]
+Description=Application settings for konqueror
+clientmachine=odroid-jessie
+clientmachinematch=0
+size=486,747
+sizerule=2
+wmclass=konqueror
+wmclasscomplete=false
+wmclassmatch=1
+
+[3]
+Description=Application settings for\s
+above=true
+aboverule=2
+clientmachine=localhost
+clientmachinematch=0
+noborder=true
+noborderrule=2
+position=0,475
+positionrule=2
+size=480,265
+sizerule=2
+wmclass=
+wmclasscomplete=false
+wmclassmatch=1
+
+[4]
+Description=Window settings for firefox-esr
+clientmachine=devuan
+clientmachinematch=0
+size=480,827
+sizerule=2
+title=New Tab - Mozilla Firefox
+titlematch=0
+types=1
+windowrole=browser
+windowrolematch=1
+wmclass=navigator firefox-esr
+wmclasscomplete=true
+wmclassmatch=1
+
+[5]
+Description=Application settings for ltris
+clientmachine=devuan
+clientmachinematch=0
+position=0,0
+positionrule=2
+size=480,880
+sizerule=2
+wmclass=ltris
+wmclasscomplete=false
+wmclassmatch=1
+
+[6]
+Description=Application settings for systemsettings
+clientmachine=devuan
+clientmachinematch=0
+size=480,827
+sizerule=2
+wmclass=systemsettings
+wmclasscomplete=false
+wmclassmatch=1
+
+[7]
+Description=Application settings for konsole
+clientmachine=devuan
+clientmachinematch=0
+position=0,0
+positionrule=2
+size=480,485
+sizerule=2
+wmclass=konsole
+wmclasscomplete=false
+wmclassmatch=1
+
+[8]
+Description=Window settings for modem-manager-gui
+clientmachine=devuan
+clientmachinematch=0
+position=0,0
+positionrule=2
+size=480,530
+sizerule=2
+title=Modem Manager GUI
+titlematch=1
+types=1
+wmclass=modem-manager-gui
+wmclasscomplete=false
+wmclassmatch=1
+
+[9]
+Description=Application settings for bsnes
+above=true
+aboverule=2
+clientmachine=devuan
+clientmachinematch=0
+size=480,480
+sizerule=2
+wmclass=bsnes
+wmclasscomplete=false
+wmclassmatch=1
+
+[General]
+count=11

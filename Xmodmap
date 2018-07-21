@@ -1,0 +1,8 @@
+keycode 111 = KP_Up KP_8 KP_Up KP_8
+
+keycode 116 = KP_Down KP_2 KP_Down KP_2
+
+keycode 113 = KP_Left KP_4 KP_Left KP_4
+
+keycode 114 = KP_Right KP_6 KP_Right KP_6
+

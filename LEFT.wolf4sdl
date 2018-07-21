@@ -1,0 +1,4 @@
+xdotool keydown Left
+sleep .15
+xdotool keyup Left
+

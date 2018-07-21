@@ -1,0 +1,20 @@
+[Desktop Entry]
+Comment[en_US]=
+Comment=
+Exec=/home/pi/ON_SCREEN_KEYBOARD
+GenericName[en_US]=
+GenericName=
+Icon=preferences-desktop-keyboard
+MimeType=
+Name[en_US]=ON_SCREEN_KEYBOARD
+Name=ON_SCREEN_KEYBOARD
+NoDisplay=true
+Path=
+StartupNotify=false
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=none
+X-KDE-SubstituteUID=false
+X-KDE-Username=

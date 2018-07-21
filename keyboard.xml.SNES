@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keyboard>
+
+<!-- SNES -->
+
+<options>
+<!-- not yet implemented -->
+</options>
+
+<layout id="defualt keyboard">
+
+<!--
+  <row>
+     <key>
+	  <default display="ヂ" />                
+    </key>
+    <key>
+	  <default display="Ӫ" />                
+    </key>
+    <key width="1500">
+	  <default display="Ω" />                
+    </key>
+    <space width="1500" />
+    <key fill="true">
+	  <default display="⠿" />                
+    </key>
+  </row>
+-->
+
+  <row>
+
+    <key obey-caps='true'>
+          <default display="L" action="xkeysym:KP_7"/>
+    </key>
+
+    <key fill="true">
+	  <default display="Tab" action="tab" />
+    </key>
+
+    <key fill="true">
+          <!-- <default display=" ^ ^  ^ ^ " action="return"/>-->
+          <default display="Ret" action="return"/>
+    </key>
+
+    <key obey-caps='true'>
+          <default display="R" action="xkeysym:KP_9"/>
+    </key>
+
+<!--
+    <key>
+      <default display="image:/usr/share/pixmaps/sync_icon.png" action="a"/>
+    </key>  
+-->
+
+  </row>
+
+  <row>
+
+    <key>
+          <default display=" ^ ^ " action="w" />
+    </key>
+
+    <space width="3500"/>
+
+    <key obey-caps='true'>
+          <default display="X" action="xkeysym:KP_8" />
+    </key>
+
+  </row>
+  <row>
+
+    <key>
+          <default display=" ^ ^ " action="a" />
+    </key>
+
+    <key>
+          <default display=" ^ ^ " action="d" />
+    </key>
+
+    <space width="500"/>
+
+    <key obey-caps='true'>
+          <default display="Y" action="xkeysym:KP_4"/>
+    </key>
+    <key obey-caps='true'>
+          <default display="A" action="xkeysym:KP_6"/>
+    </key>
+
+  </row>
+  <row>
+
+    <key>
+          <default display=" ^ ^ " action="s" />
+    </key>    
+
+    <space width="3500"/>
+
+    <key obey-caps='true'>
+          <default display="B" action="xkeysym:KP_2" />
+    </key>
+
+ </row>
+
+</layout>
+
+
+</keyboard>

@@ -1,0 +1,7 @@
+#kdialog --passivepopup "Kill Mode - Temporary" .01
+zenity --notification --text "Kill Mode - Temporary"
+#xkill -button 2&
+xkill&
+sleep 5
+killall xkill
+

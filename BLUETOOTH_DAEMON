@@ -1,0 +1,128 @@
+#!/bin/bash
+
+#no need to start from rc.local because bluetoothd handles console bluetooth keyboards
+#once paired the keyboard should connect automatically after pressing a button
+
+CHOSEN_DEVICE=0
+LOG_COUNTER=0
+#RECONNECT_COUNTER=0
+killall tmux
+truncate -s 0 /run/shm/BLUETOOTH_OUTPUT
+echo 0 > /home/pi/SCAN_STATUS
+
+#fire up bluetoothctl controlled by tmux
+tmux new-session -d -s ServerFault 'sudo bluetoothctl -a |& tee /run/shm/BLUETOOTH_OUTPUT'
+sleep 3
+#check if there are any active pairings
+PERSISTENT_CHECK=$(sudo sh -c 'ls -l /var/lib/bluetooth/*' | grep : | wc -l)
+if [ $PERSISTENT_CHECK -lt 1 ]
+then
+tmux send-keys -t ServerFault -l 'power off'
+tmux send-keys -t ServerFault Enter
+fi
+
+while true
+do
+
+BLUETOOTH_SCAN=$( awk '{ print }' /home/pi/SCAN_STATUS )
+if [ "$BLUETOOTH_SCAN" -eq "1" ]
+then
+#reset scan status here
+echo 0 > /home/pi/SCAN_STATUS
+#initiate rescan
+echo "Scanning..."
+#sudo hciconfig hci0 up
+tmux send-keys -t ServerFault -l 'power on'
+tmux send-keys -t ServerFault Enter
+sleep 1
+tmux send-keys -t ServerFault -l 'scan on'
+tmux send-keys -t ServerFault Enter
+RESULTS=$( hcitool scan )
+#with quotes this gives everything in the string
+SORTED_RESULTS=$( printf "%s\n" "$RESULTS" | grep : )
+#without quotes this gives just the address because of string spaces
+LOGICAL_RESULTS=$( printf "%s\n" $RESULTS | grep : )
+#index logical results into device address for plugging in bluectl
+ADDRESS_1=$( printf "%s\n" "$LOGICAL_RESULTS" | head -1 | tail -1 )
+ADDRESS_2=$( printf "%s\n" "$LOGICAL_RESULTS" | head -2 | tail -1 )
+ADDRESS_3=$( printf "%s\n" "$LOGICAL_RESULTS" | head -3 | tail -1 )
+ADDRESS_4=$( printf "%s\n" "$LOGICAL_RESULTS" | head -4 | tail -1 )
+ADDRESS_5=$( printf "%s\n" "$LOGICAL_RESULTS" | head -5 | tail -1 )
+ADDRESS_6=$( printf "%s\n" "$LOGICAL_RESULTS" | head -6 | tail -1 )
+ADDRESS_7=$( printf "%s\n" "$LOGICAL_RESULTS" | head -7 | tail -1 )
+ADDRESS_8=$( printf "%s\n" "$LOGICAL_RESULTS" | head -8 | tail -1 )
+ADDRESS_9=$( printf "%s\n" "$LOGICAL_RESULTS" | head -9 | tail -1 )
+ADDRESS_10=$( printf "%s\n" "$LOGICAL_RESULTS" | head -10 | tail -1 )
+#index sorted results into device name and address for kdialog
+DEVICE_1=$( printf "%s\n" "$SORTED_RESULTS" | head -1 | tail -1 )
+DEVICE_2=$( printf "%s\n" "$SORTED_RESULTS" | head -2 | tail -1 )
+DEVICE_3=$( printf "%s\n" "$SORTED_RESULTS" | head -3 | tail -1 )
+DEVICE_4=$( printf "%s\n" "$SORTED_RESULTS" | head -4 | tail -1 )
+DEVICE_5=$( printf "%s\n" "$SORTED_RESULTS" | head -5 | tail -1 )
+DEVICE_6=$( printf "%s\n" "$SORTED_RESULTS" | head -6 | tail -1 )
+DEVICE_7=$( printf "%s\n" "$SORTED_RESULTS" | head -7 | tail -1 )
+DEVICE_8=$( printf "%s\n" "$SORTED_RESULTS" | head -8 | tail -1 )
+DEVICE_9=$( printf "%s\n" "$SORTED_RESULTS" | head -9 | tail -1 )
+DEVICE_10=$( printf "%s\n" "$SORTED_RESULTS" | head -10 | tail -1 )
+#display results
+CHOSEN_DEVICE=$( kdialog --radiolist "Choose the device to connect with:" 1 "$DEVICE_1" on 2 "$DEVICE_2" off 3 "$DEVICE_3" off "$DEVICE_4" off "$DEVICE_5" off "$DEVICE_6" off "$DEVICE_7" off "$DEVICE_8" off "$DEVICE_9" off "$DEVICE_10" off )
+#convert chosen result index to logical index
+#seriously fancy stuff going on here
+TARGET_DEVICE=\$ADDRESS_$CHOSEN_DEVICE
+TARGET_ADDRESS=$( eval echo $TARGET_DEVICE )
+#have to trust to avoid yes no prompt in bluetoothctl
+#pairing here requires that scanning be on in bluetoothctl
+if [ "$CHOSEN_DEVICE" -eq "$CHOSEN_DEVICE" ] 2>/dev/null
+then
+#eval "sudo bluetoothctl <<< 'trust $TARGET_ADDRESS'"
+eval "tmux send-keys -t ServerFault -l 'trust $TARGET_ADDRESS'"
+tmux send-keys -t ServerFault Enter
+#eval "sudo bluetoothctl <<< 'pair $TARGET_ADDRESS'"
+eval "tmux send-keys -t ServerFault -l 'pair $TARGET_ADDRESS'"
+tmux send-keys -t ServerFault Enter
+#eval "sudo bluetoothctl <<< 'connect $TARGET_ADDRESS'"
+eval "tmux send-keys -t ServerFault -l 'connect $TARGET_ADDRESS'"
+tmux send-keys -t ServerFault Enter
+else
+#must use else here because ne - usually inverse of eq does not work
+tmux send-keys -t ServerFault -l 'power off'
+tmux send-keys -t ServerFault Enter
+fi
+fi
+
+#check for pin requests in bluetooth output log
+#PIN_CHECK=$( printf "%s\n" "$PIN_ACTUAL" | wc -l )
+PIN_CHECK=$( cat /run/shm/BLUETOOTH_OUTPUT | grep PIN | wc -l )
+if [ $PIN_CHECK -gt 0 ]
+then
+PIN_ACTUAL=$( cat /run/shm/BLUETOOTH_OUTPUT | grep -a PIN )
+truncate -s 0 /run/shm/BLUETOOTH_OUTPUT
+kdialog --passivepopup "Bluetooth pin request: $PIN_ACTUAL" 5
+fi
+
+#this should be done automatically by bluetoothctl
+#reconnect routine
+#if [ "$RECONNECT_COUNTER" -gt 3 ]
+#then
+#RECONNECT_COUNTER=0
+#if [ "$CHOSEN_DEVICE" -eq "$CHOSEN_DEVICE" ] 2>/dev/null
+#then
+#eval "tmux send-keys -t ServerFault -l 'connect $TARGET_ADDRESS'"
+#tmux send-keys -t ServerFault Enter
+#fi
+#fi
+
+#log maintenance
+if [ "$LOG_COUNTER" -gt 100 ]
+then
+LOG_COUNTER=0
+truncate -s 0 /run/shm/BLUETOOTH_OUTPUT
+fi
+
+LOG_COUNTER=$(($LOG_COUNTER+1))
+#RECONNECT_COUNTER=$(($RECONNECT_COUNTER+1))
+
+sleep 5
+
+done
+

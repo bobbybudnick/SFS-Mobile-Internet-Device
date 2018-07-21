@@ -1,0 +1,11 @@
+[Favorites]
+FavoriteURLs=/usr/share/applications/qupzilla.desktop,/usr/share/applications/kde4/konsole.desktop,/home/pi/.local/share/applications/Silence-Clamor.desktop,/home/pi/.local/share/applications/Physics.desktop,/home/pi/.local/share/applications/Tuxracer.desktop,/home/pi/.local/share/applications/Wolfenstein.desktop,/home/pi/.local/share/applications/Tetris.desktop,/home/pi/.local/share/applications/Pinball.desktop
+
+[KRunner]
+loadAll=false
+
+[KRunner][PlasmaRunnerManager]
+pluginWhiteList=places,shell,services,bookmarks,recentdocuments,locations
+
+[RecentlyUsed]
+Applications=Wolfenstein.desktop,Physics.desktop,Tetris.desktop,Pinball.desktop,kde4-konsole.desktop

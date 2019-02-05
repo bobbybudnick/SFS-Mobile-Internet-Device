@@ -1,0 +1,10 @@
+#!/bin/bash
+
+killall easystroke
+
+cp /home/pi/PINBALL_CONFIG /home/pi/.emilia/pinball
+
+pinball
+
+easystroke & disown
+

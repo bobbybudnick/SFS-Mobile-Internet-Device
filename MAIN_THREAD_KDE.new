@@ -227,11 +227,18 @@ sleep 5
 OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
 sudo mmcli -m $OLD_MODEM_NUMBER -e
 fi
-if [ "$TIMEOUT_COUNTER" -gt "60" ]
+#for model 16 - fix things up instead of rebooting
+#if [ "$TIMEOUT_COUNTER" -gt "60" ]
+if [ "$TIMEOUT_COUNTER" -gt "30" ]
 then
-kdialog --passivepopup "ModemManager failed - must reboot" 1
-sleep 1
-sudo reboot
+#kdialog --passivepopup "ModemManager failed - must reboot" 1
+kdialog --passivepopup "ModemManager failed - repairing UDEV" 1
+sudo udevadm control --reload
+sudo udevadm trigger
+sleep 5
+xinput set-prop 'waveshare multi-point Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+#sleep 1
+#sudo reboot
 fi
 TIMEOUT_COUNTER=$(($TIMEOUT_COUNTER+1))
 sleep 1
@@ -299,8 +306,10 @@ qdbus $URT Set "" value 4
 qdbus $URT setLabelText "Application Startup"
 #echo "50"
 #echo "# Application Startup"
+#for model 16 - add deletion to debug menu instead
 #prevent modem manager as root from crashing by deleting config
-sudo rm -r /root/.local/share/modem-manager-gui
+#sudo rm -r /root/.local/share/modem-manager-gui
+#rm -r /home/pi/.local/share/modem-manager-gui
 #for odroid c0 - text workaround does not work with kdesudo
 sudo -E modem-manager-gui&
 #kdesudo modem-manager-gui&
@@ -429,11 +438,6 @@ sudo killall dhclient
 sudo dhclient wwan0
 fi
 fi
-#disabled for model 16
-#wvdial appears to work differently now
-#it starts the connection and then quits
-#this means we can not check that it is running
-#hiopefully the connection will remain stable
 #maintain 303 connection
 #if [ $ADAPTER_CHECK_2 -gt 0 ]
 #then
@@ -445,6 +449,28 @@ fi
 #sudo wvdial&
 #fi
 #fi
+#for model 16
+#wvdial appears to work differently now
+#it starts the connection and then quits
+#this means we can not check that it is running
+#suppress 2 warnings
+CARRIER_CHECK=$(cat /sys/class/net/ppp0/carrier 2>/dev/null)
+#this checks if the value is actually a number
+if [ "$CARRIER_CHECK" -eq "$CARRIER_CHECK" ] 2>/dev/null
+then
+#echo "VALID"
+if [ $CARRIER_CHECK -lt 1 ]
+then
+kdialog --passivepopup "Restarting wvdial-based connection / Reason: No Carrier" 1
+echo 0 > /home/pi/SIGNAL_READOUT
+sudo wvdial&
+fi
+else
+#echo "INVALID"
+kdialog --passivepopup "Restarting wvdial-based connection / Reason: No Connection" 1
+echo 0 > /home/pi/SIGNAL_READOUT
+sudo wvdial&
+fi
 #maintain 308 and 313 connection
 #this is also for when connection is not ready at bootup
 #determine modem number - these devices disconnect/renumber randomly
@@ -589,8 +615,10 @@ fi
 if ! ps -C modem-manager-gui
 then
 kdialog --passivepopup "SMS died - restarting" 1
+#for model 16 - add deletion to debug menu instead
 #prevent modem manager as root from crashing by deleting config
-sudo rm -r /root/.local/share/modem-manager-gui
+#sudo rm -r /root/.local/share/modem-manager-gui
+#rm -r /home/pi/.local/share/modem-manager-gui
 #for odroid c0 - text workaround does not work with kdesudo
 sudo -E modem-manager-gui&
 #kdesudo modem-manager-gui&
@@ -692,7 +720,9 @@ then
 echo "Unread SMS"
 #play a fairly unobtrusive sound
 #run in background to stop hangups when there are problems with sound
-aplay /usr/share/sounds/pop.wav&
+#for model 16 - stock sounds have changed
+#aplay /usr/share/sounds/pop.wav&
+aplay /usr/share/games/pinball/tux/up.wav&
 #signal for indicator
 echo 1 > /home/pi/NOTIFICATION_READOUT
 fi
@@ -706,7 +736,9 @@ then
 echo "Missed Call"
 #play a fairly unobtrusive sound
 #run in background to stop hangups when there are problems with sound
-aplay /usr/share/sounds/pop.wav&
+#for model 16 - stock sounds have changed
+#aplay /usr/share/sounds/pop.wav&
+aplay /usr/share/games/pinball/tux/up.wav&
 #signal for indicator
 echo 2 > /home/pi/NOTIFICATION_READOUT
 fi
@@ -720,7 +752,8 @@ fi
 #for odroid c0
 RAW_VOLTAGE=$(cat /sys/class/saradc/saradc_ch0)
 #~3.22v - hopefully enough to avoid built in battery protection shutdown
-if [ "$RAW_VOLTAGE" -lt 785 ]
+#for model 16 - suppress some errors
+if [ "$RAW_VOLTAGE" -lt 785 ] 2>/dev/null
 then
 echo 0 > /home/pi/BATTERY_READOUT
 #good place for automatic shutdown in case of low battery
@@ -730,40 +763,40 @@ sleep 30
 #for model 16 - just in case
 #sudo shutdown -h now
 fi
-if [ "$RAW_VOLTAGE" -ge 785 ]
+if [ "$RAW_VOLTAGE" -ge 785 ] 2>/dev/null
 then
 echo 1 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 825 ]
+if [ "$RAW_VOLTAGE" -gt 825 ] 2>/dev/null
 then
 echo 2 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 850 ]
+if [ "$RAW_VOLTAGE" -gt 850 ] 2>/dev/null
 then
 echo 3 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 875 ]
+if [ "$RAW_VOLTAGE" -gt 875 ] 2>/dev/null
 then
 echo 4 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 900 ]
+if [ "$RAW_VOLTAGE" -gt 900 ] 2>/dev/null
 then
 echo 5 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 925 ]
+if [ "$RAW_VOLTAGE" -gt 925 ] 2>/dev/null
 then
 echo 6 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 950 ]
+if [ "$RAW_VOLTAGE" -gt 950 ] 2>/dev/null
 then
 echo 7 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 975 ]
+if [ "$RAW_VOLTAGE" -gt 975 ] 2>/dev/null
 then
 echo 8 > /home/pi/BATTERY_READOUT
 fi
 #~4.106v - happened to loosely correspond - adc is imperfect anyway
-if [ "$RAW_VOLTAGE" -gt 1000 ]
+if [ "$RAW_VOLTAGE" -gt 1000 ] 2>/dev/null
 then
 echo 9 > /home/pi/BATTERY_READOUT
 fi

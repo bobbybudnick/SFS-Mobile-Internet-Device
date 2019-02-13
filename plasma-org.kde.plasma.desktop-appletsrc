@@ -26,6 +26,32 @@ DialogWidth=540
 height=800
 width=480
 
+[Containments][18]
+activityId=0e1ba636-5b59-486a-8db4-ce267b1c48ca
+formfactor=0
+immutability=1
+lastScreen=0
+location=0
+plugin=org.kde.desktopcontainment
+wallpaperplugin=org.kde.image
+
+[Containments][18][Wallpaper][org.kde.image][General]
+height=800
+width=480
+
+[Containments][19]
+activityId=0e1ba636-5b59-486a-8db4-ce267b1c48ca
+formfactor=0
+immutability=1
+lastScreen=1
+location=0
+plugin=org.kde.desktopcontainment
+wallpaperplugin=org.kde.image
+
+[Containments][19][Wallpaper][org.kde.image][General]
+height=800
+width=480
+
 [Containments][2]
 activityId=ee8f548a-6726-4c57-af4a-0202ed20d5ca
 formfactor=0
@@ -72,7 +98,7 @@ DialogHeight=540
 DialogWidth=540
 
 [Containments][3][Applets][4][Configuration][General]
-favorites=qupzilla.desktop,org.kde.dolphin.desktop,org.kde.konsole.desktop,ROUTER.desktop,SILENCE.desktop,claws-mail.desktop,linphone.desktop,Modem Manager (As Root).desktop
+favorites=qupzilla.desktop,org.kde.dolphin.desktop,org.kde.konsole.desktop,ROUTER.desktop,SILENCE.desktop,claws-mail.desktop,linphone.desktop,Modem Manager (As Root).desktop,Debug Menu.desktop
 
 [Containments][3][Applets][4][Configuration][Shortcuts]
 global=Alt+F1
@@ -169,14 +195,18 @@ plugin=org.kde.plasma.bluetooth
 immutability=1
 plugin=org.kde.kdeconnect
 
+[Containments][8][Applets][19]
+immutability=1
+plugin=org.kde.plasma.volume
+
 [Containments][8][ConfigDialog]
 DialogHeight=540
 DialogWidth=540
 
 [Containments][8][General]
-extraItems=org.kde.plasma.bluetooth,org.kde.plasma.notifications,org.kde.plasma.clipboard,org.kde.plasma.mediacontroller,org.kde.plasma.devicenotifier,org.kde.discovernotifier,org.kde.plasma.battery,org.kde.kdeconnect
-hiddenItems=org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.discovernotifier,org.kde.plasma.bluetooth,org.kde.plasma.notifications,org.kde.plasma.battery
-knownItems=org.kde.plasma.bluetooth,org.kde.plasma.notifications,org.kde.plasma.clipboard,org.kde.plasma.mediacontroller,org.kde.plasma.devicenotifier,org.kde.discovernotifier,org.kde.plasma.battery,org.kde.kdeconnect
+extraItems=org.kde.plasma.bluetooth,org.kde.plasma.notifications,org.kde.plasma.clipboard,org.kde.plasma.mediacontroller,org.kde.plasma.devicenotifier,org.kde.discovernotifier,org.kde.plasma.battery,org.kde.kdeconnect,org.kde.plasma.volume
+hiddenItems=org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.discovernotifier,org.kde.plasma.bluetooth,org.kde.plasma.notifications,org.kde.plasma.battery,org.kde.plasma.volume
+knownItems=org.kde.plasma.bluetooth,org.kde.plasma.notifications,org.kde.plasma.clipboard,org.kde.plasma.mediacontroller,org.kde.plasma.devicenotifier,org.kde.discovernotifier,org.kde.plasma.battery,org.kde.kdeconnect,org.kde.plasma.volume
 
 [General]
 immutability=2

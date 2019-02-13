@@ -8,6 +8,9 @@ sudo ./KDE_64_APPLICATIONS
 sudo apt-get autoremove desktop-base
 sudo ./KDE_64_APPLICATIONS
 
+#remove pulseaudio
+sudo apt-get -y autoremove pulseaudio
+
 #setup kernel - force to overwrite some alsa files - hdmi does work after this
 sudo dpkg -i --force-all lattepanda-z8350-64-mainline_4.12.0-rc1-1_amd64.deb
 #make hdmi default
@@ -78,6 +81,7 @@ cp TOUCH ~
 cp KILL_GTK* ~
 cp GESTURES.jpg ~
 cp FIRST_BOOT ~
+cp DEBUG_MENU ~
 
 #setup easystroke
 cp -r easystroke ~/.easystroke
@@ -106,6 +110,7 @@ sudo chmod +x WOLF4SDL
 sudo chmod +x PINBALL
 sudo chmod +x NUMPTYPHYSICS
 sudo chmod +x LTRIS
+sudo chmod +x DEBUG_MENU
 
 echo "Now reboot to go into the new kernel.  You should be automatically logged into KDE.  Log out then finish up by running SETUP_PHASE_2"
 

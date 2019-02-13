@@ -6,9 +6,11 @@
    <Filename>SILENCE.desktop</Filename>
    <Filename>ROUTER.desktop</Filename>
    <Filename>Modem Manager (As Root).desktop</Filename>
+   <Filename>Debug Menu.desktop</Filename>
   </Include>
   <Layout>
    <Merge type="files"/>
+   <Filename>Debug Menu.desktop</Filename>
    <Filename>Modem Manager (As Root).desktop</Filename>
    <Filename>SILENCE.desktop</Filename>
    <Filename>ROUTER.desktop</Filename>

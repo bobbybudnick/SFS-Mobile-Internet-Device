@@ -13,104 +13,107 @@ sudo apt-get -y autoremove pulseaudio
 
 #setup kernel - force to overwrite some alsa files - hdmi does work after this
 sudo dpkg -i --force-all lattepanda-z8350-64-mainline_4.12.0-rc1-1_amd64.deb
-#make hdmi default
-cp asoundrc ~/.asoundrc
+#setup custom alsa rules
+cp asoundrc /home/pi/.asoundrc
+#setup custom alsa indices
+cp alsa-base.conf /etc/modprobe.d/
 
 #setup miscellaneous
 sudo cp blacklist.conf /etc/modprobe.d/blacklist.conf
 sudo cp sddm.conf /etc/sddm.conf
 sudo cp udhcpd.conf /etc/udhcpd.conf
 sudo cp sudoers /etc/sudoers
+sudo cp 'Big_Buck_Bunny_first_23_seconds_1080p.ogv' /home/pi
 
 #setup convenience notifications
-cp 10_PERCENT_BATTERY.svg ~
-cp 20_PERCENT_BATTERY.svg ~
-cp 30_PERCENT_BATTERY.svg ~
-cp 40_PERCENT_BATTERY.svg ~
-cp 50_PERCENT_BATTERY.svg ~
-cp 60_PERCENT_BATTERY.svg ~
-cp 70_PERCENT_BATTERY.svg ~
-cp 80_PERCENT_BATTERY.svg ~
-cp 90_PERCENT_BATTERY.svg ~
-cp 1_BARS.svg ~
-cp 2_BARS.svg ~
-cp 3_BARS.svg ~
-cp 4_BARS.svg ~
-cp 5_BARS.svg ~
-cp MISSED_CALL.svg ~
-cp UNREAD_SMS.svg ~
-cp sample_icon.svg ~
-cp KDE.svg ~
-cp NOTIFICATION_ICON.py ~
-cp BATTERY_ICON.py ~
-cp SIGNAL_ICON.py ~
-cp NOTIFICATION_READOUT ~
-cp BATTERY_READOUT ~
+cp 10_PERCENT_BATTERY.svg /home/pi
+cp 20_PERCENT_BATTERY.svg /home/pi
+cp 30_PERCENT_BATTERY.svg /home/pi
+cp 40_PERCENT_BATTERY.svg /home/pi
+cp 50_PERCENT_BATTERY.svg /home/pi
+cp 60_PERCENT_BATTERY.svg /home/pi
+cp 70_PERCENT_BATTERY.svg /home/pi
+cp 80_PERCENT_BATTERY.svg /home/pi
+cp 90_PERCENT_BATTERY.svg /home/pi
+cp 1_BARS.svg /home/pi
+cp 2_BARS.svg /home/pi
+cp 3_BARS.svg /home/pi
+cp 4_BARS.svg /home/pi
+cp 5_BARS.svg /home/pi
+cp MISSED_CALL.svg /home/pi
+cp UNREAD_SMS.svg /home/pi
+cp sample_icon.svg /home/pi
+cp KDE.svg /home/pi
+cp NOTIFICATION_ICON.py /home/pi
+cp BATTERY_ICON.py /home/pi
+cp SIGNAL_ICON.py /home/pi
+cp NOTIFICATION_READOUT /home/pi
+cp BATTERY_READOUT /home/pi
 
 #setup cellular networking
-cp mbim-network.conf.ATT ~
-cp mbim-network.conf.ATTPREPAID ~
-cp mbim-network.conf.TMOBILE ~
-cp wvdial.conf.ATT ~
-cp wvdial.conf.ATTPREPAID ~
-cp wvdial.conf.TMOBILE ~
-cp wvdial.conf.ATT.313 ~
-cp wvdial.conf.ATTPREPAID.313 ~
-cp wvdial.conf.TMOBILE.313 ~
-cp PROVIDER ~
+cp mbim-network.conf.ATT /home/pi
+cp mbim-network.conf.ATTPREPAID /home/pi
+cp mbim-network.conf.TMOBILE /home/pi
+cp wvdial.conf.ATT /home/pi
+cp wvdial.conf.ATTPREPAID /home/pi
+cp wvdial.conf.TMOBILE /home/pi
+cp wvdial.conf.ATT.313 /home/pi
+cp wvdial.conf.ATTPREPAID.313 /home/pi
+cp wvdial.conf.TMOBILE.313 /home/pi
+cp PROVIDER /home/pi
 sudo cp 77-mm-whitelist-rfcomm-modem.rules /etc/udev/rules.d/
 sudo udevadm control --reload
 sudo udevadm trigger
 
 #setup custom scripts
-cp LEFT* ~
-cp RIGHT* ~
-cp DOWN ~
-cp UP ~
-cp MAIN_THREAD_KDE.new ~
-cp SILENCE ~
-cp LTRIS ~
-cp NUMPTYPHYSICS ~
-cp PINBALL ~
-cp WOLF4SDL ~
-cp ETRACER ~
-cp MODEM ~
-cp ON_SCREEN_KEYBOARD ~
-cp ROUTER_KDE ~
-cp TOUCH ~
-cp KILL_GTK* ~
-cp GESTURES.jpg ~
-cp FIRST_BOOT ~
-cp DEBUG_MENU ~
+cp LEFT* /home/pi
+cp RIGHT* /home/pi
+cp DOWN /home/pi
+cp UP /home/pi
+cp MAIN_THREAD_KDE.new /home/pi
+cp SILENCE /home/pi
+cp LTRIS /home/pi
+cp NUMPTYPHYSICS /home/pi
+cp PINBALL /home/pi
+cp WOLF4SDL /home/pi
+cp ETRACER /home/pi
+cp MODEM /home/pi
+cp ON_SCREEN_KEYBOARD /home/pi
+cp ROUTER_KDE /home/pi
+cp TOUCH /home/pi
+cp KILL_GTK* /home/pi
+cp GESTURES.jpg /home/pi
+cp FIRST_BOOT /home/pi
+cp DEBUG_MENU /home/pi
 
 #setup easystroke
-cp -r easystroke ~/.easystroke
-cp -r easystroke-0.5.6 ~
+cp -r easystroke /home/pi/.easystroke
+cp -r easystroke-0.5.6 /home/pi
 (cd /home/pi/easystroke-0.5.6 && sudo make install)
 
 #setup permissions
-sudo chmod 777 NOTIFICATION_READOUT
-sudo chmod 777 BATTERY_READOUT
-sudo chmod 777 PROVIDER
-sudo chmod 777 FIRST_BOOT
-sudo chmod +x MAIN_THREAD_KDE.new
-sudo chmod +x LEFT*
-sudo chmod +x RIGHT*
-sudo chmod +x UP
-sudo chmod +x DOWN
-sudo chmod +x SILENCE
-sudo chmod +x ON_SCREEN_KEYBOARD
-sudo chmod +x ROUTER_KDE
-sudo chmod +x TOUCH
-sudo chmod +x KILL_GTK*
-sudo chmod +x TOUCH
-sudo chmod +x MODEM
-sudo chmod +x ETRACER
-sudo chmod +x WOLF4SDL
-sudo chmod +x PINBALL
-sudo chmod +x NUMPTYPHYSICS
-sudo chmod +x LTRIS
-sudo chmod +x DEBUG_MENU
+sudo chmod 777 /home/pi/NOTIFICATION_READOUT
+sudo chmod 777 /home/pi/BATTERY_READOUT
+sudo chmod 777 /home/pi/PROVIDER
+sudo chmod 777 /home/pi/FIRST_BOOT
+sudo chmod +x /home/pi/MAIN_THREAD_KDE.new
+sudo chmod +x /home/pi/LEFT*
+sudo chmod +x /home/pi/RIGHT*
+sudo chmod +x /home/pi/UP
+sudo chmod +x /home/pi/DOWN
+sudo chmod +x /home/pi/SILENCE
+sudo chmod +x /home/pi/ON_SCREEN_KEYBOARD
+sudo chmod +x /home/pi/ROUTER_KDE
+sudo chmod +x /home/pi/TOUCH
+sudo chmod +x /home/pi/KILL_GTK*
+sudo chmod +x /home/pi/TOUCH
+sudo chmod +x /home/pi/MODEM
+sudo chmod +x /home/pi/ETRACER
+sudo chmod +x /home/pi/WOLF4SDL
+sudo chmod +x /home/pi/PINBALL
+sudo chmod +x /home/pi/NUMPTYPHYSICS
+sudo chmod +x /home/pi/LTRIS
+sudo chmod +x /home/pi/DEBUG_MENU
 
 echo "Now reboot to go into the new kernel.  You should be automatically logged into KDE.  Log out then finish up by running SETUP_PHASE_2"
 

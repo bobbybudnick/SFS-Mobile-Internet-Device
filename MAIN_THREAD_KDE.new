@@ -145,7 +145,9 @@ WVDIAL_COUNTER=100
 
 #(
 
-URT=`kdialog --progressbar "Thermal and Energy Management Setup" 4`
+#for model 16 - redo progress bar
+URT=`kdialog --progressbar "Input Setup" 4`
+sleep 1
 #echo "10"
 #echo "# Thermal and Energy Management Setup"
 #set cpu to max speed when load reaches 95%
@@ -156,10 +158,7 @@ URT=`kdialog --progressbar "Thermal and Energy Management Setup" 4`
 #disable ethernet - saves 50ma
 #for odroid c2 - hub-ctrl does not work
 #/home/pi/hub-ctrl.c/hub-ctrl -h 0 -P 1 -p 0
-sleep 1
-qdbus $URT Set "" value 1
 
-qdbus $URT setLabelText "Input Setup"
 #echo "20"
 #echo "# Touchscreen Setup"
 #this also sets up hold to right click like on windows
@@ -188,10 +187,10 @@ easystroke&
 #start bluetooth input daemon
 #for odroid c2 - no room for bluetooth electrically and physically
 #/home/pi/BLUETOOTH_DAEMON&
-sleep 1
-qdbus $URT Set "" value 2
+qdbus $URT Set "" value 1
 
 qdbus $URT setLabelText "Audio Setup"
+sleep 1
 #echo "30"
 #echo "# Audio Setup"
 #for odroid c0
@@ -202,10 +201,9 @@ amixer -c 1 sset toot playback 100%
 amixer -c 2 sset toot playback 100%
 amixer -c 1 sset Mic capture 100%
 amixer -c 2 sset Mic capture 100%
-sleep 1
-qdbus $URT Set "" value 3
+qdbus $URT Set "" value 2
 
-qdbus $URT setLabelText "Network Setup"
+qdbus $URT setLabelText "Modem Manager Setup"
 #echo "40"
 #echo "# Network Setup"
 #prestart modem manager
@@ -223,9 +221,14 @@ MODEM_STATUS=$(cat /run/shm/MODEM | grep success | wc -l)
 if [ "$MODEM_STATUS" -eq "1" ]
 then
 #enable the modem
-sleep 5
+#for model 16 - make sure the modem enables
+ENABLE_STATUS=0
+while [  "$ENABLE_STATUS" -lt "1" ]
+do
+sleep 1
 OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
-sudo mmcli -m $OLD_MODEM_NUMBER -e
+ENABLE_STATUS=$(sudo mmcli -m $OLD_MODEM_NUMBER -e | grep success | wc -l)
+done
 fi
 #for model 16 - fix things up instead of rebooting
 #if [ "$TIMEOUT_COUNTER" -gt "60" ]
@@ -243,6 +246,9 @@ fi
 TIMEOUT_COUNTER=$(($TIMEOUT_COUNTER+1))
 sleep 1
 done
+qdbus $URT Set "" value 3
+
+qdbus $URT setLabelText "Network Dial In"
 #initial startup to avoid faulty so and so died messages
 #decide what device is being used and set the dialup strategy
 ADAPTER_CHECK_1=$(sudo lsusb -v | grep Product | grep 340 | wc -l)
@@ -304,6 +310,7 @@ python /home/pi/BATTERY_ICON.py&
 qdbus $URT Set "" value 4
 
 qdbus $URT setLabelText "Application Startup"
+sleep 1
 #echo "50"
 #echo "# Application Startup"
 #for model 16 - add deletion to debug menu instead
@@ -400,9 +407,16 @@ WVDIAL_COUNTER=0
 MODEM_NUMBER=$(mmcli -L | cut -c39)
 if [ "$MODEM_NUMBER" -gt "$OLD_MODEM_NUMBER" ]
 then
-kdialog --passivepopup "Reenabling modem manager after new modem enumeration" 1
+#for model 16 - make sure the modem enables
+ENABLE_STATUS=0
 OLD_MODEM_NUMBER=$MODEM_NUMBER
-sudo mmcli -m $OLD_MODEM_NUMBER -e
+while [  "$ENABLE_STATUS" -lt "1" ]
+do
+kdialog --passivepopup "Reenabling modem manager after new modem enumeration" 1
+sleep 3
+OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
+ENABLE_STATUS=$(sudo mmcli -m $OLD_MODEM_NUMBER -e | grep success | wc -l)
+done
 fi
 #BURT=$(ps aux | grep wvdial | wc -l)
 #if [ "$BURT" -lt 2 ]
@@ -439,8 +453,9 @@ sudo dhclient wwan0
 fi
 fi
 #maintain 303 connection
-#if [ $ADAPTER_CHECK_2 -gt 0 ]
-#then
+#for model 16 - make model specific again
+if [ $ADAPTER_CHECK_2 -gt 0 ]
+then
 #if ! ps -C wvdial
 #then
 #kdialog --passivepopup "Restarting wvdial-based connection / Reason: wvdial died" 1
@@ -470,6 +485,7 @@ else
 kdialog --passivepopup "Restarting wvdial-based connection / Reason: No Connection" 1
 echo 0 > /home/pi/SIGNAL_READOUT
 sudo wvdial&
+fi
 fi
 #maintain 308 and 313 connection
 #this is also for when connection is not ready at bootup
@@ -507,10 +523,17 @@ fi
 CARRIER_CHECK=$(cat /sys/class/net/wwan0/carrier)
 if [ $CARRIER_CHECK -lt 1 ]
 then
-kdialog --passivepopup "Restarting modemmanager-based connection / Reason: Lack of Carrier" 1
 echo 0 > /home/pi/SIGNAL_READOUT
 sudo mmcli -m $MODEM_NUMBER -d
-sudo mmcli -m $MODEM_NUMBER -e
+#for model 16 - make sure the modem enables
+ENABLE_STATUS=0
+while [  "$ENABLE_STATUS" -lt "1" ]
+do
+kdialog --passivepopup "Restarting modemmanager-based connection / Reason: Lack of Carrier" 1
+sleep 3
+OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
+ENABLE_STATUS=$(sudo mmcli -m $MODEM_NUMBER -e | grep success | wc -l)
+done
 #connection routine for modemmanager-based devices
 if [ "$PROVIDER" = "ATT" ]
 then

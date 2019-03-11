@@ -4,6 +4,11 @@
 #now modified for 5 inch HDMI device/Pi 3
 #now modified for odroid c2
 #now modified for odroid c0
+#now modified for lattepanda (original)
+#now modified again for odroid c0
+
+#485 is default terminal height
+#is too small for heavy programming
 
 #no left click bug can be fixed by toggling ads7846 in xinput
 #or by toggling the waveshare device for usb devices instead of spi
@@ -12,6 +17,9 @@
 FLASH_MODE_MEMORY=-1
 
 #OLD_IDLE_COUNT=0
+
+#start as awake always
+echo 0 > /home/pi/SLEEP_STATUS
 
 BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
 if [ "$BOOT_STATUS" -eq "1" ]
@@ -33,6 +41,10 @@ sleep 5
 #third button emulation - hold to right click - does not work
 xinput set-prop 'waveshare multi-point Touchscreen' 'Evdev Axis Inversion' 0 1
 xinput set-prop 'waveshare multi-point Touchscreen' 'Evdev Axes Swap' 1
+#for model 16 - apparently x86 does not use evdev by default
+#looks like model 17 can use either method but previous is best
+#this is because it can be setup without scripting
+#xinput set-prop 'waveshare multi-point Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
 #initial cellular configuration
 sudo rm /etc/wvdial.conf
 PROVIDER=$( kdialog --radiolist "Choose your cellular provider:" 1 "ATT" on 2 "ATT Prepaid" off 3 "Tmobile" off )
@@ -42,13 +54,17 @@ if [ "$PROVIDER" -eq 1 ]
 then
 #att
 echo ATT > /home/pi/PROVIDER
-ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+ADAPTER_CHECK_1=$(sudo lsusb -v | grep Product | grep 340 | wc -l)
 if [ $ADAPTER_CHECK_1 -gt 0 ]
 then
 #continuous programming - used each boot
 sudo cp /home/pi/mbim-network.conf.ATT /etc/mbim-network.conf
 fi
+#for model 17 - previous was more specific and less privileged
+#for older kernels
 ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+#for newer kernels - for model 16
+#ADAPTER_CHECK_2=$(sudo lsusb -v | grep Product | grep 'HUAWEI Mobile' | wc -l)
 if [ $ADAPTER_CHECK_2 -gt 0 ]
 then
 #continuous programming - used each boot
@@ -60,13 +76,17 @@ if [ "$PROVIDER" -eq 2 ]
 then
 #att prepaid
 echo ATT_PREPAID > /home/pi/PROVIDER
-ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+ADAPTER_CHECK_1=$(sudo lsusb -v | grep Product | grep 340 | wc -l)
 if [ $ADAPTER_CHECK_1 -gt 0 ]
 then
 #continuous programming - used each boot
 sudo cp /home/pi/mbim-network.conf.ATTPREPAID /etc/mbim-network.conf
 fi
+#for model 17 - previous was more specific and less privileged
+#for older kernels
 ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+#for newer kernels - for model 16
+#ADAPTER_CHECK_2=$(sudo lsusb -v | grep Product | grep 'HUAWEI Mobile' | wc -l)
 if [ $ADAPTER_CHECK_2 -gt 0 ]
 then
 #continuous programming - used each boot
@@ -78,13 +98,17 @@ if [ "$PROVIDER" -eq 3 ]
 then
 #tmobile
 echo TMOBILE > /home/pi/PROVIDER
-ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+ADAPTER_CHECK_1=$(sudo lsusb -v | grep Product | grep 340 | wc -l)
 if [ $ADAPTER_CHECK_1 -gt 0 ]
 then
 #continuous programming - used each boot
 sudo cp /home/pi/mbim-network.conf.TMOBILE /etc/mbim-network.conf
 fi
+#for model 17 - previous was more specific and less privileged
+#for older kernels
 ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+#for newer kernels - for model 16
+#ADAPTER_CHECK_2=$(sudo lsusb -v | grep Product | grep 'HUAWEI Mobile' | wc -l)
 if [ $ADAPTER_CHECK_2 -gt 0 ]
 then
 #continuous programming - used each boot
@@ -104,10 +128,20 @@ feh -x -. /home/pi/GESTURES.jpg&
 kdialog --msgbox "Press OK when finished reviewing gestures tutorial"
 #zenity --info --text="Press OK when finished reviewing gestures tutorials"
 echo "0" > /home/pi/FIRST_BOOT
-kdialog --passivepopup "Your system is configured - rebooting" 1
+#for model 16 - there seems to be no reason to reboot anymore
+#kdialog --passivepopup "Your system is configured - rebooting" 1
 #zenity --info --text="Your system is configured - press OK to reboot"
-sudo sync
-sudo reboot
+#sudo sync
+#sudo reboot
+if kdialog --title "Continue Check" --warningcontinuecancel "Configuration complete.  Press Continue to continue startup or Cancel to quit for now to make other changes."
+then
+killall feh
+echo "Continue"
+else
+echo "cancel"
+killall feh
+exit
+fi
 fi
 
 echo "1" > /home/pi/CONTROL2
@@ -120,7 +154,11 @@ WVDIAL_COUNTER=100
 
 #(
 
-URT=`kdialog --progressbar "Thermal and Energy Management Setup" 4`
+#for model 16 - redo progress bar
+URT=`kdialog --progressbar "Input and Power Management Setup" 4`
+sleep 1
+#for model 17 - use conventional style power management
+sudo sh -c "echo 'conservative' >> /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
 #echo "10"
 #echo "# Thermal and Energy Management Setup"
 #set cpu to max speed when load reaches 95%
@@ -131,10 +169,7 @@ URT=`kdialog --progressbar "Thermal and Energy Management Setup" 4`
 #disable ethernet - saves 50ma
 #for odroid c2 - hub-ctrl does not work
 #/home/pi/hub-ctrl.c/hub-ctrl -h 0 -P 1 -p 0
-sleep 1
-qdbus $URT Set "" value 1
 
-qdbus $URT setLabelText "Input Setup"
 #echo "20"
 #echo "# Touchscreen Setup"
 #this also sets up hold to right click like on windows
@@ -154,6 +189,8 @@ xinput set-prop 'WaveShare WS170120' 'Evdev Third Button Emulation Threshold' 10
 #third button emulation - hold to right click - does not work
 xinput set-prop 'waveshare multi-point Touchscreen' 'Evdev Axis Inversion' 0 1
 xinput set-prop 'waveshare multi-point Touchscreen' 'Evdev Axes Swap' 1
+#for model 16 - apparently x86 does not use evdev by default
+#xinput set-prop 'waveshare multi-point Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
 xset -dpms
 #change below for gtk - and kde now too
 #start easystroke for DE independent gesture recognition
@@ -161,10 +198,10 @@ easystroke&
 #start bluetooth input daemon
 #for odroid c2 - no room for bluetooth electrically and physically
 #/home/pi/BLUETOOTH_DAEMON&
-sleep 1
-qdbus $URT Set "" value 2
+qdbus $URT Set "" value 1
 
 qdbus $URT setLabelText "Audio Setup"
+sleep 1
 #echo "30"
 #echo "# Audio Setup"
 #for odroid c0
@@ -175,10 +212,9 @@ amixer -c 1 sset toot playback 100%
 amixer -c 2 sset toot playback 100%
 amixer -c 1 sset Mic capture 100%
 amixer -c 2 sset Mic capture 100%
-sleep 1
-qdbus $URT Set "" value 3
+qdbus $URT Set "" value 2
 
-qdbus $URT setLabelText "Network Setup"
+qdbus $URT setLabelText "Modem Manager Setup"
 #echo "40"
 #echo "# Network Setup"
 #prestart modem manager
@@ -196,35 +232,54 @@ MODEM_STATUS=$(cat /run/shm/MODEM | grep success | wc -l)
 if [ "$MODEM_STATUS" -eq "1" ]
 then
 #enable the modem
-sleep 5
-OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
-sudo mmcli -m $OLD_MODEM_NUMBER -e
-fi
-if [ "$TIMEOUT_COUNTER" -gt "60" ]
-then
-kdialog --passivepopup "ModemManager failed - must reboot" 1
+#for model 16 - make sure the modem enables
+ENABLE_STATUS=0
+while [  "$ENABLE_STATUS" -lt "1" ]
+do
 sleep 1
-sudo reboot
+OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
+ENABLE_STATUS=$(sudo mmcli -m $OLD_MODEM_NUMBER -e | grep success | wc -l)
+done
+fi
+#for model 16 - fix things up instead of rebooting
+#if [ "$TIMEOUT_COUNTER" -gt "60" ]
+if [ "$TIMEOUT_COUNTER" -gt "30" ]
+then
+#kdialog --passivepopup "ModemManager failed - must reboot" 1
+kdialog --passivepopup "ModemManager failed - repairing UDEV" 1
+sudo udevadm control --reload
+sudo udevadm trigger
+sleep 5
+xinput set-prop 'waveshare multi-point Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+#sleep 1
+#sudo reboot
 fi
 TIMEOUT_COUNTER=$(($TIMEOUT_COUNTER+1))
 sleep 1
 done
+qdbus $URT Set "" value 3
+
+qdbus $URT setLabelText "Network Dial In"
 #initial startup to avoid faulty so and so died messages
 #decide what device is being used and set the dialup strategy
-ADAPTER_CHECK_1=$(lsusb -v | grep Product | grep 340 | wc -l)
+ADAPTER_CHECK_1=$(sudo lsusb -v | grep Product | grep 340 | wc -l)
 if [ $ADAPTER_CHECK_1 -gt 0 ]
 then
 sudo mbim-network /dev/cdc-wdm0 start
 sleep 2
 sudo dhclient wwan0
 fi
+#for model 17 - previous was more specific and less privileged
+#for older kernels
 ADAPTER_CHECK_2=$(lsusb -v | grep Product | grep E398 | wc -l)
+#for newer kernels - for model 16
+#ADAPTER_CHECK_2=$(sudo lsusb -v | grep Product | grep 'HUAWEI Mobile' | wc -l)
 if [ $ADAPTER_CHECK_2 -gt 0 ]
 then
 sudo wvdial&
 fi
-ADAPTER_CHECK_3=$(lsusb -v | grep Product | grep 313 | wc -l)
-ADAPTER_CHECK_4=$(lsusb -v | grep Product | grep 308 | wc -l)
+ADAPTER_CHECK_3=$(sudo lsusb -v | grep Product | grep 313 | wc -l)
+ADAPTER_CHECK_4=$(sudo lsusb -v | grep Product | grep 308 | wc -l)
 #this is an or statement
 if [ $ADAPTER_CHECK_4 -gt 0 ] || [ $ADAPTER_CHECK_3 -gt 0 ]
 then
@@ -267,10 +322,13 @@ python /home/pi/BATTERY_ICON.py&
 qdbus $URT Set "" value 4
 
 qdbus $URT setLabelText "Application Startup"
+sleep 1
 #echo "50"
 #echo "# Application Startup"
+#for model 16 - add deletion to debug menu instead
 #prevent modem manager as root from crashing by deleting config
-sudo rm -r /root/.local/share/modem-manager-gui
+#sudo rm -r /root/.local/share/modem-manager-gui
+#rm -r /home/pi/.local/share/modem-manager-gui
 #for odroid c0 - text workaround does not work with kdesudo
 sudo -E modem-manager-gui&
 #kdesudo modem-manager-gui&
@@ -300,27 +358,56 @@ wmctrl -k on
 while true
 do
 
+#for model 16 - sleep mode
+#previously the power switch existed only to reset screen
+#this turns what was an awkward hardware workaround into a sleep function
+#when switch is off the device will now go to sleep
+#this has the side effect of disabling audio notifications while asleep
+#an led notification light or a built in light may be able to be used instead
+#SCREEN_CHECK=$(lsusb | grep D-WAV | wc -l)
+#SLEEP_STATUS=$(cat /home/pi/SLEEP_STATUS)
+#if [ $SLEEP_STATUS -eq "1" ]
+#then
+#if [ $SCREEN_CHECK -gt 0 ]
+#then
+#kdialog --passivepopup "Wakeup" 1
+#echo 0 > /home/pi/SLEEP_STATUS
+#xinput set-prop 'waveshare multi-point Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+#sudo cpupower frequency-set --governor performance
+#fi
+#fi
+#if [ $SLEEP_STATUS -eq "0" ]
+#then
+#if [ $SCREEN_CHECK -lt 1 ]
+#then
+#kdialog --passivepopup "Zzzzzzz" 1
+#echo 1 > /home/pi/SLEEP_STATUS
+#sudo cpupower frequency-set --governor powersave
+#fi
+#fi
+
+#for model 16 - disabled to save battery life
 #keeps the touchscreen driver running well no matter what
 #this fixes touchscreen input failure after sleeping
 #disabling irq #505/irq 505 nobody cared
 #if [ "$DRIVER_COUNTER" -gt 60 ]
 #then
 #DRIVER_COUNTER=0
-DRIVER_CHECK=$(dmesg | grep irq | grep nobody | wc -l)
-if [ "$DRIVER_CHECK" -gt "1" ]
-then
+#DRIVER_CHECK=$(dmesg | grep irq | grep nobody | wc -l)
+#if [ "$DRIVER_CHECK" -gt "1" ]
+#then
 #kdialog --passivepopup "Touchscreen driver died - taking no action" 1
 #zenity --notification --window-icon="info" --text "Touchscreen driver died - taking no action"&
-kdialog --passivepopup "Touchscreen driver died - restarting" 1
-sudo modprobe -r ads7846
-sleep 1
-sudo modprobe ads7846
+#kdialog --passivepopup "Touchscreen driver died - restarting" 1
+#sudo modprobe -r ads7846
+#sleep 1
+#sudo modprobe ads7846
 #sleep 1
 #sudo killall evrouter
 #sleep 5
-dmesg > /home/pi/DMESG_BACKUP
-sudo dmesg -c
-fi
+#dmesg > /home/pi/DMESG_BACKUP
+#sudo dmesg -c
+#fi
 #fi
 
 #starts wvdial/kopete/linphone/icedove
@@ -332,9 +419,16 @@ WVDIAL_COUNTER=0
 MODEM_NUMBER=$(mmcli -L | cut -c39)
 if [ "$MODEM_NUMBER" -gt "$OLD_MODEM_NUMBER" ]
 then
-kdialog --passivepopup "Reenabling modem manager after new modem enumeration" 1
+#for model 16 - make sure the modem enables
+ENABLE_STATUS=0
 OLD_MODEM_NUMBER=$MODEM_NUMBER
-sudo mmcli -m $OLD_MODEM_NUMBER -e
+while [  "$ENABLE_STATUS" -lt "1" ]
+do
+kdialog --passivepopup "Reenabling modem manager after new modem enumeration" 1
+sleep 3
+OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
+ENABLE_STATUS=$(sudo mmcli -m $OLD_MODEM_NUMBER -e | grep success | wc -l)
+done
 fi
 #BURT=$(ps aux | grep wvdial | wc -l)
 #if [ "$BURT" -lt 2 ]
@@ -371,6 +465,7 @@ sudo dhclient wwan0
 fi
 fi
 #maintain 303 connection
+#for model 16 - make model specific again
 if [ $ADAPTER_CHECK_2 -gt 0 ]
 then
 if ! ps -C wvdial
@@ -381,6 +476,29 @@ echo 0 > /home/pi/SIGNAL_READOUT
 sudo wvdial&
 fi
 fi
+#for model 16
+#wvdial appears to work differently now
+#it starts the connection and then quits
+#this means we can not check that it is running
+#suppress 2 warnings
+#CARRIER_CHECK=$(cat /sys/class/net/ppp0/carrier 2>/dev/null)
+#this checks if the value is actually a number
+#if [ "$CARRIER_CHECK" -eq "$CARRIER_CHECK" ] 2>/dev/null
+#then
+#echo "VALID"
+#if [ $CARRIER_CHECK -lt 1 ]
+#then
+#kdialog --passivepopup "Restarting wvdial-based connection / Reason: No Carrier" 1
+#echo 0 > /home/pi/SIGNAL_READOUT
+#sudo wvdial&
+#fi
+#else
+#echo "INVALID"
+#kdialog --passivepopup "Restarting wvdial-based connection / Reason: No Connection" 1
+#echo 0 > /home/pi/SIGNAL_READOUT
+#sudo wvdial&
+#fi
+#fi
 #maintain 308 and 313 connection
 #this is also for when connection is not ready at bootup
 #determine modem number - these devices disconnect/renumber randomly
@@ -417,10 +535,17 @@ fi
 CARRIER_CHECK=$(cat /sys/class/net/wwan0/carrier)
 if [ $CARRIER_CHECK -lt 1 ]
 then
-kdialog --passivepopup "Restarting modemmanager-based connection / Reason: Lack of Carrier" 1
 echo 0 > /home/pi/SIGNAL_READOUT
 sudo mmcli -m $MODEM_NUMBER -d
-sudo mmcli -m $MODEM_NUMBER -e
+#for model 16 - make sure the modem enables
+ENABLE_STATUS=0
+while [  "$ENABLE_STATUS" -lt "1" ]
+do
+kdialog --passivepopup "Restarting modemmanager-based connection / Reason: Lack of Carrier" 1
+sleep 3
+OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
+ENABLE_STATUS=$(sudo mmcli -m $MODEM_NUMBER -e | grep success | wc -l)
+done
 #connection routine for modemmanager-based devices
 if [ "$PROVIDER" = "ATT" ]
 then
@@ -525,8 +650,10 @@ fi
 if ! ps -C modem-manager-gui
 then
 kdialog --passivepopup "SMS died - restarting" 1
+#for model 16 - add deletion to debug menu instead
 #prevent modem manager as root from crashing by deleting config
-sudo rm -r /root/.local/share/modem-manager-gui
+#sudo rm -r /root/.local/share/modem-manager-gui
+#rm -r /home/pi/.local/share/modem-manager-gui
 #for odroid c0 - text workaround does not work with kdesudo
 sudo -E modem-manager-gui&
 #kdesudo modem-manager-gui&
@@ -628,7 +755,9 @@ then
 echo "Unread SMS"
 #play a fairly unobtrusive sound
 #run in background to stop hangups when there are problems with sound
-aplay /usr/share/sounds/pop.wav&
+#for model 16 - stock sounds have changed
+#aplay /usr/share/sounds/pop.wav&
+aplay /usr/share/games/pinball/tux/up.wav&
 #signal for indicator
 echo 1 > /home/pi/NOTIFICATION_READOUT
 fi
@@ -642,7 +771,9 @@ then
 echo "Missed Call"
 #play a fairly unobtrusive sound
 #run in background to stop hangups when there are problems with sound
-aplay /usr/share/sounds/pop.wav&
+#for model 16 - stock sounds have changed
+#aplay /usr/share/sounds/pop.wav&
+aplay /usr/share/games/pinball/tux/up.wav&
 #signal for indicator
 echo 2 > /home/pi/NOTIFICATION_READOUT
 fi
@@ -656,49 +787,51 @@ fi
 #for odroid c0
 RAW_VOLTAGE=$(cat /sys/class/saradc/saradc_ch0)
 #~3.22v - hopefully enough to avoid built in battery protection shutdown
-if [ "$RAW_VOLTAGE" -lt 785 ]
+#for model 16 - suppress some errors
+if [ "$RAW_VOLTAGE" -lt 785 ] 2>/dev/null
 then
 echo 0 > /home/pi/BATTERY_READOUT
 #good place for automatic shutdown in case of low battery
 #will work well with c0 because it uses nothing when shutdown
 kdialog --passivepopup "Battery level critical - shutdown in 30 seconds - save all work!" 1
 sleep 30
+#for model 16 - just in case
 sudo shutdown -h now
 fi
-if [ "$RAW_VOLTAGE" -ge 785 ]
+if [ "$RAW_VOLTAGE" -ge 785 ] 2>/dev/null
 then
 echo 1 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 825 ]
+if [ "$RAW_VOLTAGE" -gt 825 ] 2>/dev/null
 then
 echo 2 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 850 ]
+if [ "$RAW_VOLTAGE" -gt 850 ] 2>/dev/null
 then
 echo 3 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 875 ]
+if [ "$RAW_VOLTAGE" -gt 875 ] 2>/dev/null
 then
 echo 4 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 900 ]
+if [ "$RAW_VOLTAGE" -gt 900 ] 2>/dev/null
 then
 echo 5 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 925 ]
+if [ "$RAW_VOLTAGE" -gt 925 ] 2>/dev/null
 then
 echo 6 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 950 ]
+if [ "$RAW_VOLTAGE" -gt 950 ] 2>/dev/null
 then
 echo 7 > /home/pi/BATTERY_READOUT
 fi
-if [ "$RAW_VOLTAGE" -gt 975 ]
+if [ "$RAW_VOLTAGE" -gt 975 ] 2>/dev/null
 then
 echo 8 > /home/pi/BATTERY_READOUT
 fi
 #~4.106v - happened to loosely correspond - adc is imperfect anyway
-if [ "$RAW_VOLTAGE" -gt 1000 ]
+if [ "$RAW_VOLTAGE" -gt 1000 ] 2>/dev/null
 then
 echo 9 > /home/pi/BATTERY_READOUT
 fi
@@ -730,6 +863,26 @@ fi
 #fi
 fi
 
+#conventional style power management
+#run cpu slowly always until high demand applications are running
+if [ "$POWER_COUNTER" -gt 30 ]
+then
+POWER_COUNTER=0
+GOVERNOR_TYPE=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+if ! ( ps -C qupzilla || ps -C firefox-esr )
+then
+if [ "$GOVERNOR_TYPE" = "performance" ]
+then
+sudo sh -c "echo 'conservative' >> /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+fi
+else
+if [ "$GOVERNOR_TYPE" = "conservative" ]
+then
+sudo sh -c "echo 'performance' >> /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+fi
+fi
+fi
+
 #deal with memory leaks - every day for the panel
 #if [ "$LEAK_COUNTER" -gt 86400 ]
 #then
@@ -756,6 +909,7 @@ CELL_COUNTER=$(($CELL_COUNTER+1))
 WVDIAL_COUNTER=$(($WVDIAL_COUNTER+1))
 #DRIVER_COUNTER=$(($DRIVER_COUNTER+1))
 #LEAK_COUNTER=$(($LEAK_COUNTER+1))
+POWER_COUNTER=$(($POWER_COUNTER+1))
 sleep 1
 
 done

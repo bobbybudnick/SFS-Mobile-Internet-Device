@@ -2,7 +2,7 @@
 
 #this assumes a us location with a non changing mcc and mnc
 
-CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Update time with NTP" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time without NTP" off 5 "Enable ethernet" off)
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Update time with NTP" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time without NTP" off 5 "Enable ethernet" off 6 "Delete SMS databases" off 7 "Shutdown" off 8 "Reboot" off)
 if [ "$CHOICE" -eq 1 ]
 then
 sudo ntpdate time.nist.gov
@@ -56,5 +56,21 @@ fi
 if [ "$CHOICE" -eq 5 ]
 then
 /home/pi/hub-ctrl.c/hub-ctrl -h 0 -P 1 -p 1
+fi
+
+if [ "$CHOICE" -eq 6 ]
+then
+sudo rm -r /root/.local/share/modem-manager-gui
+rm -r /home/pi/.local/share/modem-manager-gui
+fi
+
+if [ "$CHOICE" -eq 7 ]
+then
+sudo shutdown -h now
+fi
+
+if [ "$CHOICE" -eq 8 ]
+then
+sudo reboot
 fi
 

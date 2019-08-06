@@ -1,0 +1,148 @@
+#!/bin/bash
+
+#Multitouch Methods For Generic X11 Applications
+#by Bobby Budnick
+
+#a little more explanation
+#a first and second touch will be detected on the first touch
+#this is because catch and catch store will never perfectly match
+#still should work though
+#this is because it is set to watch for subsequent moves
+#these moves will not be watched once first finger is released
+#this is because releasing generates a -1 which resets script
+#also second touches while first held down do not generate -1
+#these observations only apply to the waveshare 5" for now
+
+#clear virtual file
+truncate -s 0 /run/user/1000/TOUCH_OUTPUT
+
+#try to figure out which touch device to use
+#support not added for waveshare 4.3" because it does not work
+sudo rm /home/pi/EVTEST_DEVICE
+#none of these work
+#EVTEST_DEVICE_CAPTURE=$(sudo evtest 2>&1)&
+#sudo evtest > /home/pi/EVTEST_DEVICE&
+#sudo evtest 2>&1 /home/pi/EVTEST_DEVICE
+script -c 'sudo evtest' /home/pi/EVTEST_DEVICE&
+sleep 1
+sudo killall evtest
+sleep 1
+DEVICE_GUESS=$(cat /home/pi/EVTEST_DEVICE | grep Touch | cut -d":" -f1 | cut -c17-25)
+#DEVICE_GUESS=$(xinput list | grep Touch | cut -d"=" -f2 | cut -c1-3)
+DEVICE_GUESS_FAILSAFE=$(echo $DEVICE_GUESS | wc -l)
+if [ $DEVICE_GUESS_FAILSAFE -lt 1 ]
+then
+kdialog --msgbox "No Multitouch Devices Found!"
+exit
+fi
+
+#this is touch screen specific and does show x y coordinates
+sudo evtest /dev/input/event$DEVICE_GUESS > /run/user/1000/TOUCH_OUTPUT&
+
+#initial variables
+ID_CATCH_STORE=-100
+MOVEMENT_CATCH_STORE=0
+
+#cut does not work when grepping directly from program xinput
+#should run program then cat from output instead
+
+while [ true ]
+do
+
+#watch for a new tracking id
+#the awk here filters all results that are less than 0
+ID_CATCH_1=$(cat /run/user/1000/TOUCH_OUTPUT | grep -a ABS_MT_TRACKING_ID | cut -d" " -f11 | awk ' $0 > 0 ' | tail -n1)
+	#make sure this is a new event to keep from repeating
+	if [ $ID_CATCH_1 -gt $ID_CATCH_STORE ] 2>/dev/null
+	then
+
+	ID_CATCH_STORE=$ID_CATCH_1
+
+	echo "First Move Detected"
+	MOVE_TRACKING=1
+		while [ "$MOVE_TRACKING" -eq "1" ]
+		do
+
+		#watch for a negative tracking id
+		#this indicates that a finger has been released
+		#this means it is time to reset and watch again
+		NEGATIVE_CATCH=$(cat /run/user/1000/TOUCH_OUTPUT | grep -a ABS_MT_TRACKING_ID | cut -d" " -f11 | awk ' $0 < 0 ' | tail -n1)
+		#could also count and use wc -l here
+			if [ $NEGATIVE_CATCH -lt 0 ] 2>/dev/null
+			then
+			echo "Finger Release"
+			#exit loop and clear virtual file
+			MOVE_TRACKING=0
+			#have to clear the file here
+			#no way to tell one -1 from another
+			truncate -s 0 /run/user/1000/TOUCH_OUTPUT
+			fi
+
+		#watch for a second tracking id
+		#this apppears when touched with other finger
+		ID_CATCH_2=$(cat /run/user/1000/TOUCH_OUTPUT | grep -a ABS_MT_TRACKING_ID | cut -d" " -f11 | awk ' $0 > 0 ' | tail -n1)
+
+		#watch for generic movement - x coordinate used
+		#any moves across screen picked up here
+		#subsequent presses picked up here also
+		MOVEMENT_CATCH=$(cat /run/user/1000/TOUCH_OUTPUT | grep -a ABS_MT_POSITION_X | tail -n1 | cut -d" " -f11)
+
+			#if the id is greater then we have touched the screen a second time
+			#this is because a new id is created and is always (hopefully) larger
+			#could put a /dev/null on this but it would be confusing if something really did go wrong
+			#this is an or
+			#also checks subsequent presses
+			#subsequent presses do not generate a new id
+			#this compares the subsequent touched area with the previous subsequently touched area
+			#this seems to work because subsequent touches are usually not pixel accurate
+			#it will not fire if your dexterity is so high that you always touch the exact same spot
+			#luckily most people are not and the overlay buttons are many pixels across
+
+			#for debugging if statement below
+			#if [ $ID_CATCH_2 -gt $ID_CATCH_1 ]
+			#then
+			#echo "ID CHECK - DEBUG"
+			#sleep 30
+			#fi
+			#if [ $MOVEMENT_CATCH -gt $(expr $MOVEMENT_CATCH_STORE + 0) ] || [ $MOVEMENT_CATCH -lt $(expr $MOVEMENT_CATCH_STORE - 0) ]
+			#then
+			#echo "MOVEMENT CHECK - DEBUG"
+			#sleep 30
+			#fi
+
+			if [ $ID_CATCH_2 -gt $ID_CATCH_1 ] || [ $MOVEMENT_CATCH -gt $(expr $MOVEMENT_CATCH_STORE + 0) ] || [ $MOVEMENT_CATCH -lt $(expr $MOVEMENT_CATCH_STORE - 0) ]
+			then
+
+			#for debugging touch confusion
+			#echo "Movement Catch Store: $MOVEMENT_CATCH_STORE"
+			#echo "Movement Catch: $MOVEMENT_CATCH"
+			#sleep 5
+
+			ID_CATCH_1=$ID_CATCH_2
+			MOVEMENT_CATCH_STORE=$MOVEMENT_CATCH
+
+			echo "Second Move Detected"
+
+			#these find the x and y coordinates of the touch
+			#grep is broken without the "a" switch
+			X_COORDINATE=$(cat /run/user/1000/TOUCH_OUTPUT | grep -a ABS_MT_POSITION_X | tail -n1 | cut -d" " -f11)
+			Y_COORDINATE_PRE_1=$(cat /run/user/1000/TOUCH_OUTPUT | grep -a ABS_MT_POSITION_Y | tail -n1 | cut -d" " -f11)
+			Y_COORDINATE_PRE_2=$(expr $Y_COORDINATE_PRE_1 - 480)
+			Y_COORDINATE=$(echo $Y_COORDINATE_PRE_2 | tr -d -)
+
+			echo "X:$X_COORDINATE Y:$Y_COORDINATE"
+
+			#send coordinates to xdotool and execute
+			#the restore was crucial here to prevent the left thumb (first input) from stopping
+			xdotool mousemove $Y_COORDINATE $X_COORDINATE click 1 mousemove restore
+
+			fi
+
+		sleep .1
+		done
+
+	fi
+
+sleep .1
+done
+

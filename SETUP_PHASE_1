@@ -1,111 +1,15 @@
-#install initial packages
-#this is needed for some reason
-sudo apt-get autoremove desktop-base
-#keep this separate so it is easy to add to
-sudo chmod +x KDE_64_APPLICATIONS
-sudo ./KDE_64_APPLICATIONS
-#do this and the install again just in case
-sudo apt-get autoremove desktop-base
-sudo ./KDE_64_APPLICATIONS
+#run this first
+#run as root
+#very important for stability on pc stick
 
-#setup kernel - force to overwrite some alsa files - hdmi does work after this
+#install kernel and probably overwrite some alsa files
 sudo dpkg -i --force-all lattepanda-z8350-64-mainline_4.12.0-rc1-1_amd64.deb
-#make hdmi default
-cp asoundrc ~/.asoundrc
 
-#setup miscellaneous
-sudo cp blacklist.conf /etc/modprobe.d/blacklist.conf
-sudo cp sddm.conf /etc/sddm.conf
-sudo cp udhcpd.conf /etc/udhcpd.conf
-sudo cp sudoers /etc/sudoers
+#setup grub with intel power hack
+sudo cp grub /etc/default/grub
 
-#setup convenience notifications
-cp 10_PERCENT_BATTERY.svg ~
-cp 20_PERCENT_BATTERY.svg ~
-cp 30_PERCENT_BATTERY.svg ~
-cp 40_PERCENT_BATTERY.svg ~
-cp 50_PERCENT_BATTERY.svg ~
-cp 60_PERCENT_BATTERY.svg ~
-cp 70_PERCENT_BATTERY.svg ~
-cp 80_PERCENT_BATTERY.svg ~
-cp 90_PERCENT_BATTERY.svg ~
-cp 1_BARS.svg ~
-cp 2_BARS.svg ~
-cp 3_BARS.svg ~
-cp 4_BARS.svg ~
-cp 5_BARS.svg ~
-cp MISSED_CALL.svg ~
-cp UNREAD_SMS.svg ~
-cp sample_icon.svg ~
-cp KDE.svg ~
-cp NOTIFICATION_ICON.py ~
-cp BATTERY_ICON.py ~
-cp SIGNAL_ICON.py ~
-cp NOTIFICATION_READOUT ~
-cp BATTERY_READOUT ~
+#update grub within kernel configuration
+sudo update-grub
 
-#setup cellular networking
-cp mbim-network.conf.ATT ~
-cp mbim-network.conf.ATTPREPAID ~
-cp mbim-network.conf.TMOBILE ~
-cp wvdial.conf.ATT ~
-cp wvdial.conf.ATTPREPAID ~
-cp wvdial.conf.TMOBILE ~
-cp wvdial.conf.ATT.313 ~
-cp wvdial.conf.ATTPREPAID.313 ~
-cp wvdial.conf.TMOBILE.313 ~
-cp PROVIDER ~
-sudo cp 77-mm-whitelist-rfcomm-modem.rules /etc/udev/rules.d/
-sudo udevadm control --reload
-sudo udevadm trigger
-
-#setup custom scripts
-cp LEFT* ~
-cp RIGHT* ~
-cp DOWN ~
-cp UP ~
-cp MAIN_THREAD_KDE.new ~
-cp SILENCE ~
-cp LTRIS ~
-cp NUMPTYPHYSICS ~
-cp PINBALL ~
-cp WOLF4SDL ~
-cp ETRACER ~
-cp MODEM ~
-cp ON_SCREEN_KEYBOARD ~
-cp ROUTER_KDE ~
-cp TOUCH ~
-cp KILL_GTK* ~
-cp GESTURES.jpg ~
-cp FIRST_BOOT ~
-
-#setup easystroke
-cp -r easystroke ~/.easystroke
-cp -r easystroke-0.5.6 ~
-(cd /home/pi/easystroke-0.5.6 && sudo make install)
-
-#setup permissions
-sudo chmod 777 NOTIFICATION_READOUT
-sudo chmod 777 BATTERY_READOUT
-sudo chmod 777 PROVIDER
-sudo chmod 777 FIRST_BOOT
-sudo chmod +x MAIN_THREAD_KDE.new
-sudo chmod +x LEFT*
-sudo chmod +x RIGHT*
-sudo chmod +x UP
-sudo chmod +x DOWN
-sudo chmod +x SILENCE
-sudo chmod +x ON_SCREEN_KEYBOARD
-sudo chmod +x ROUTER_KDE
-sudo chmod +x TOUCH
-sudo chmod +x KILL_GTK*
-sudo chmod +x TOUCH
-sudo chmod +x MODEM
-sudo chmod +x ETRACER
-sudo chmod +x WOLF4SDL
-sudo chmod +x PINBALL
-sudo chmod +x NUMPTYPHYSICS
-sudo chmod +x LTRIS
-
-echo "Now reboot to go into the new kernel.  You should be automatically logged into KDE.  Log out then finish up by running SETUP_PHASE_2"
+echo "Please reboot immediately and run SETUP_PHASE_2"
 

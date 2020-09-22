@@ -70,9 +70,11 @@
     </key>
     <key>
 	  <default display="9" />
+          <shifted display="?" />
     </key>
     <key>
 	  <default display="0" />
+          <shifted display="=" />
     </key>
 
     <key width="5000" fill="true">

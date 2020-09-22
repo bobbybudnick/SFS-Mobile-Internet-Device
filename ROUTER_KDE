@@ -4,10 +4,15 @@
 
 #determine WAN port
 WAN=ppp0
-WAN_CHECK=$(sudo ifconfig | grep wwan0 | wc -l)
-if [ $WAN_CHECK -gt 0 ]
+WAN_CHECK_1=$(sudo ifconfig | grep wwan0 | wc -l)
+if [ $WAN_CHECK_1 -gt 0 ]
 then
 WAN=wwan0
+fi
+WAN_CHECK_2=$(sudo ifconfig | grep usb0 | wc -l)
+if [ $WAN_CHECK_2 -gt 0 ]
+then
+WAN=usb0
 fi
 if ! kdialog --title "Calibration Check" --warningcontinuecancel "Press continue to run the router app"
 #if ! zenity --question --text "Press Continue to run the router app"

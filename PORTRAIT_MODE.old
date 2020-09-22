@@ -1,0 +1,14 @@
+#720p for gaming will allow a game to run in an 800x600 window
+xrandr -s 4
+
+#set orientation
+xrandr --output HDMI-2 --rotate right
+
+#deal with mouse boundary bug - choose anything but 1 to 1
+xrandr --output HDMI-2 --scale 1x1.001
+
+#setup touchscreen input calibration
+xinput set-prop 'WaveShare WS170120' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+
+#signal the mode
+echo 0 > /home/pi/ORIENTATION_MODE

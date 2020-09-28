@@ -1,0 +1,26 @@
+[General]
+confirmLogout=true
+excludeApps=
+loginMode=default
+offerShutdown=true
+screenCount=1
+shutdownType=0
+
+[LegacySession: saved at previous logout]
+count=0
+
+[Session: saved at previous logout]
+clientId1=10eda397a0000132548151500000024040004
+clientId2=10eda397a0000132548151500000024040006
+count=2
+discardCommand1[$e]=rm,$HOME/.config/session/kwin_10eda397a0000132548151500000024040004_1325482120_762952
+program1=kwin_x11
+program2=/usr/lib/x86_64-linux-gnu/libexec/org_kde_powerdevil
+restartCommand1=kwin_x11,-session,10eda397a0000132548151500000024040004_1325482120_762952
+restartCommand2=/usr/lib/x86_64-linux-gnu/libexec/org_kde_powerdevil,-session,10eda397a0000132548151500000024040006_1325482120_750425
+restartStyleHint1=0
+restartStyleHint2=0
+userId1=pi
+userId2=pi
+wasWm1=true
+wasWm2=false

@@ -1,0 +1,27 @@
+<!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN' 'http://www.freedesktop.org/standards/menu-spec/1.0/menu.dtd'>
+<Menu>
+ <Menu>
+  <Name>Utilities</Name>
+  <Include>
+   <Filename>SILENCE.desktop</Filename>
+   <Filename>ROUTER.desktop</Filename>
+   <Filename>Modem Manager (As Root).desktop</Filename>
+   <Filename>Debug Menu.desktop</Filename>
+  </Include>
+  <Layout>
+   <Merge type="files"/>
+   <Filename>Debug Menu.desktop</Filename>
+   <Filename>Modem Manager (As Root).desktop</Filename>
+   <Filename>SILENCE.desktop</Filename>
+   <Filename>ROUTER.desktop</Filename>
+   <Merge type="menus"/>
+   <Menuname>XUtilities</Menuname>
+   <Filename>org.kde.ark.desktop</Filename>
+   <Filename>easystroke.desktop</Filename>
+   <Filename>inputmethods-matchbox-keyboard.desktop</Filename>
+   <Filename>org.kde.kwrite.desktop</Filename>
+   <Separator/>
+   <Menuname>More</Menuname>
+  </Layout>
+ </Menu>
+</Menu>

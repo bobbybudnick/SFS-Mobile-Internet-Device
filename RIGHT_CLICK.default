@@ -1,0 +1,53 @@
+#required for right click
+#multitouch screens do not generate correct events for evdev
+#waveshare 5 inch screen b is considered multitouch
+#the evdev driver is what controls third button emulation
+#third button emulation was previously used to implement a right click
+#draw the associated easytouch gesture and then click for right click
+
+#set the variable for the timeout counter
+TIMEOUT_COUNTER=0
+#set the variable because a comparison happens before it is created
+LOCATION_2=0
+
+#check the initial cursor position
+LOCATION_1=$(xdotool getmouselocation | cut -d " " -f1 | cut -d ":" -f2)
+
+#disable left click
+xmodmap -e "pointer = 0 2 3 0 0"
+
+#start a loop
+while true
+do
+
+#get position and cut twice
+#once to treat spaces as fields and once to treat colons as fields
+#this allows us to pick out numbers only of any length
+#this picks out the x position only - change center cut to do y
+LOCATION_2=$(xdotool getmouselocation | cut -d " " -f1 | cut -d ":" -f2)
+
+#compare old location to new location
+if [ "$LOCATION_1" -ne "$LOCATION_2" ]
+then
+#issue a right click, restore left click and exit
+#echo "Clicking"
+xdotool click 3
+xmodmap -e "pointer = 1 2 3 0 0"
+exit
+fi
+
+#2 second timeout
+if [ "$TIMEOUT_COUNTER" -gt 20 ]
+then
+#restore left click and exit - user does not actually want right click
+#echo "Exiting"
+xmodmap -e "pointer = 1 2 3 0 0"
+exit
+fi
+
+sleep .1
+
+#increment counter for secondary exit
+TIMEOUT_COUNTER=$(($TIMEOUT_COUNTER+1))
+
+done

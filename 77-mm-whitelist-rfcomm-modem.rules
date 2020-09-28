@@ -1,0 +1,1 @@
+ACTION=="add|change|move", KERNEL=="rfcomm*", DEVPATH!="*/virtual/*", SUBSYSTEM=="tty", ENV{ID_MM_DEVICE_PROCESS}="1"

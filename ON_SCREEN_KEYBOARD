@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#launch OSK if not already running
+
+#check if running
+#if ps -C matchbox-keyboard
+if ps -C matchbox-keyboa
+then
+#if running then kill
+#killall matchbox-keyboard
+#killall -r "matchbox-keyboa"
+killall matchbox-keyboa
+#killall devilspie
+exit
+fi
+
+#launch if not
+#xvkbd&
+#matchbox-keyboard
+matchbox-keyboard&
+#this removes windows decorations aka the title bar
+#a ds file must be configured for devilspie to work
+#devilspie&
+

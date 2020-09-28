@@ -1,0 +1,109 @@
+#!/bin/bash
+
+#this assumes a us location with a non changing mcc and mnc
+
+#CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Update time with NTP" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time without NTP" off 5 "Delete SMS databases" off 6 "Delete ModemManager config" off 7 "Low Power" off 8 "High Power" off 9 "Portrait" off 10 "Landscape" off 11 "Shutdown" off 12 "Reboot" off)
+#no more dynamic switching of rotation with the old fbdev
+#CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Low Power" off 4 "High Power" off 5 "Portrait" off 6 "Landscape" off 7 "Shutdown" off 8 "Reboot" off 9 "Flashlight On" off 10 "Flashlight Off" off)
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Low Power" off 4 "High Power" off 5 "Shutdown" off 6 "Reboot" off 7 "Flashlight On" off 8 "Flashlight Off" off)
+#if [ "$CHOICE" -eq 1 ]
+#then
+#sudo ntpdate time.nist.gov
+#kdialog --msgbox "Time should sync soon - do dpkg-reconfigure tzdata to set timezone"
+#fi
+#if [ "$CHOICE" -eq 2 ]
+#then
+#echo 0 > FLASH_MODE
+#echo 0 > SECURE_BLINKING
+#kdialog --msgbox "variables have been zeroed and should stop light if no missed communications"
+#fi
+#if [ "$CHOICE" -eq 3 ]
+#then
+
+#sed -i '10s/.*/      "locationAreaCode": 99999,/' TEST.json
+
+#extract cell id from mmcli
+#CELL_ID=$(sudo mmcli --location-get -m 0 | cut -d ":" -f2 | head -n7 | tail -n 1 | tr -d \')
+#extract lac from mmcli
+#LAC=$(sudo mmcli --location-get -m 0 | cut -d ":" -f2 | head -n6 | tail -n 1 | tr -d \')
+#edit JSON request file with both cell id and lac
+#eval needed for sed to interpret variables
+#eval "sed -i '9s/.*/      "cellId": $CELL_ID,/' TEST.json"
+#eval "sed -i '10s/.*/      "locationAreaCode": $LAC,/' TEST.json"
+
+#send request
+#LOCATION=$(curl -k -d @TEST.json -H "Content-Type: application/json" -i "https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAOJrU_GJIPDyULw50Jrvu7qrydwED5tYA")
+
+#kdialog --msgbox "$LOCATION"
+
+#if kdialog --title "Logging" --warningcontinuecancel "`echo $LOCATION`"
+#if kdialog --title "Logging" --warningcontinuecancel "Press continue to log to file"
+#then
+#echo $LOCATION >> LOCATION
+#fi
+#fi
+
+#if [ "$CHOICE" -eq 4 ]
+#then
+#TIME=$(nc time.nist.gov 13)
+
+#TIME_1=$(echo "$TIME" | cut -d' ' -f2)
+#TIME_2=$(echo "$TIME" | cut -d' ' -f3)
+
+#FORMATTED_TIME="$TIME_1 $TIME_2 UTC ET -5"
+
+#echo $FORMATTED_TIME
+#kdialog --msgbox "$FORMATTED_TIME"
+#fi
+
+if [ "$CHOICE" -eq 1 ]
+then
+sudo rm -r /root/.local/share/modem-manager-gui
+sudo rm -r /home/pi/.local/share/modem-manager-gui
+fi
+
+if [ "$CHOICE" -eq 2 ]
+then
+sudo rm -r /home/pi/.config/modem-manager-gui/
+fi
+
+if [ "$CHOICE" -eq 3 ]
+then
+sudo cpupower frequency-set --governor interactive
+fi
+
+if [ "$CHOICE" -eq 4 ]
+then
+sudo cpupower frequency-set --governor performance
+fi
+
+#if [ "$CHOICE" -eq 5 ]
+#then
+#/home/pi/PORTRAIT_MODE
+#fi
+
+#if [ "$CHOICE" -eq 6 ]
+#then
+#/home/pi/LANDSCAPE_MODE
+#fi
+
+if [ "$CHOICE" -eq 5 ]
+then
+sudo shutdown -h now
+fi
+
+if [ "$CHOICE" -eq 6 ]
+then
+sudo reboot
+fi
+
+if [ "$CHOICE" -eq 7 ]
+then
+sudo sh -c "echo 'default-on' >> /sys/class/leds/sys_led/trigger"
+fi
+
+if [ "$CHOICE" -eq 8 ]
+then
+sudo sh -c "echo 'none' >> /sys/class/leds/sys_led/trigger"
+fi
+

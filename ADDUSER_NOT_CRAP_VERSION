@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#this will add a user for you without all the trouble
+#run as root
+#here is a tip - do not use $GROUPS as a variable
+
+read -p "Type the requested user name" -n 20 -r
+
+COLLECTED_GROUPS=$( cat /etc/group | cut -d ':' -f1 )
+
+COLLECTED_GROUPS_PROCESSED=$(echo $COLLECTED_GROUPS | tr ' ' ',')
+
+useradd $REPLY -M -G $COLLECTED_GROUPS_PROCESSED
+
+#TESTER=("useradd $REPLY -M -G $COLLECTED_GROUPS_PROCESSED")
+#echo $TESTER
+

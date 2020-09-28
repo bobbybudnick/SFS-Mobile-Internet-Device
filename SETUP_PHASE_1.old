@@ -1,0 +1,145 @@
+#modified for pc stick
+#now modified for vim3
+
+#remove systemd since this is for debian not devuan
+#not working since there are some hdmi related scripts for systemd
+#sudo apt-get install sysvinit-core sysvinit sysvinit-utils
+
+#add a user
+echo "please specify pi as user here or you will have a bad time"
+sudo chmod +x ADDUSER_NOT_CRAP_VERSION
+sudo ./ADDUSER_NOT_CRAP_VERSION
+sudo mkdir /home/pi
+
+#debug
+exit
+
+#install initial packages
+#this is needed for some reason
+#not needed on pc stick
+#sudo apt-get autoremove desktop-base
+#keep this separate so it is easy to add to
+sudo chmod +x KDE_64_APPLICATIONS
+sudo ./KDE_64_APPLICATIONS
+#do this and the install again just in case
+#sudo apt-get autoremove desktop-base
+sudo ./KDE_64_APPLICATIONS
+
+#remove pulseaudio
+sudo apt-get -y autoremove pulseaudio
+
+#nothing else was needed for sound on pc stick
+#setup custom alsa rules
+#cp asoundrc /home/pi/.asoundrc
+#setup custom alsa indices
+#cp alsa-base.conf /etc/modprobe.d/
+
+#setup miscellaneous
+#nothing needs to be blacklisted on vim3
+#sudo cp blacklist.conf /etc/modprobe.d/blacklist.conf
+sudo cp sddm.conf /etc/sddm.conf
+sudo cp udhcpd.conf /etc/udhcpd.conf
+sudo cp sudoers /etc/sudoers
+sudo cp 'Big_Buck_Bunny_first_23_seconds_1080p.ogv' /home/pi
+
+#setup convenience notifications
+cp 10_PERCENT_BATTERY.svg /home/pi
+cp 20_PERCENT_BATTERY.svg /home/pi
+cp 30_PERCENT_BATTERY.svg /home/pi
+cp 40_PERCENT_BATTERY.svg /home/pi
+cp 50_PERCENT_BATTERY.svg /home/pi
+cp 60_PERCENT_BATTERY.svg /home/pi
+cp 70_PERCENT_BATTERY.svg /home/pi
+cp 80_PERCENT_BATTERY.svg /home/pi
+cp 90_PERCENT_BATTERY.svg /home/pi
+cp 1_BARS.svg /home/pi
+cp 2_BARS.svg /home/pi
+cp 3_BARS.svg /home/pi
+cp 4_BARS.svg /home/pi
+cp 5_BARS.svg /home/pi
+cp MISSED_CALL.svg /home/pi
+cp UNREAD_SMS.svg /home/pi
+cp sample_icon.svg /home/pi
+cp KDE.svg /home/pi
+cp NOTIFICATION_ICON.py /home/pi
+cp BATTERY_ICON.py /home/pi
+cp SIGNAL_ICON.py /home/pi
+cp NOTIFICATION_READOUT /home/pi
+cp BATTERY_READOUT /home/pi
+
+#setup cellular networking
+cp mbim-network.conf.ATT /home/pi
+cp mbim-network.conf.ATTPREPAID /home/pi
+cp mbim-network.conf.TMOBILE /home/pi
+cp wvdial.conf.ATT /home/pi
+cp wvdial.conf.ATTPREPAID /home/pi
+cp wvdial.conf.TMOBILE /home/pi
+cp wvdial.conf.ATT.313 /home/pi
+cp wvdial.conf.ATTPREPAID.313 /home/pi
+cp wvdial.conf.TMOBILE.313 /home/pi
+cp PROVIDER /home/pi
+sudo cp 77-mm-whitelist-rfcomm-modem.rules /etc/udev/rules.d/
+sudo udevadm control --reload
+sudo udevadm trigger
+
+#setup custom scripts
+cp LEFT* /home/pi
+cp RIGHT* /home/pi
+cp DOWN /home/pi
+cp UP /home/pi
+cp MAIN_THREAD_KDE.new /home/pi
+cp SILENCE /home/pi
+cp LTRIS /home/pi
+cp NUMPTYPHYSICS /home/pi
+cp PINBALL /home/pi
+cp WOLF4SDL /home/pi
+cp ETRACER /home/pi
+cp MODEM /home/pi
+cp ON_SCREEN_KEYBOARD /home/pi
+cp ROUTER_KDE /home/pi
+cp TOUCH /home/pi
+cp KILL_GTK* /home/pi
+cp GESTURES.jpg /home/pi
+cp FIRST_BOOT /home/pi
+cp DEBUG_MENU /home/pi
+cp PORTRAIT_MODE /home/pi
+cp LANDSCAPE_MODE /home/pi
+cp ORIENTATION_MODE /home/pi
+
+#setup easystroke
+cp -r easystroke /home/pi/.easystroke
+cp -r easystroke-0.5.6 /home/pi
+(cd /home/pi/easystroke-0.5.6 && sudo make install)
+
+#setup permissions
+sudo chmod 777 /home/pi/NOTIFICATION_READOUT
+sudo chmod 777 /home/pi/BATTERY_READOUT
+sudo chmod 777 /home/pi/PROVIDER
+sudo chmod 777 /home/pi/FIRST_BOOT
+sudo chmod +x /home/pi/MAIN_THREAD_KDE.new
+sudo chmod +x /home/pi/LEFT*
+sudo chmod +x /home/pi/RIGHT*
+sudo chmod +x /home/pi/UP
+sudo chmod +x /home/pi/DOWN
+sudo chmod +x /home/pi/SILENCE
+sudo chmod +x /home/pi/ON_SCREEN_KEYBOARD
+sudo chmod +x /home/pi/ROUTER_KDE
+sudo chmod +x /home/pi/TOUCH
+sudo chmod +x /home/pi/KILL_GTK*
+sudo chmod +x /home/pi/TOUCH
+sudo chmod +x /home/pi/MODEM
+sudo chmod +x /home/pi/ETRACER
+sudo chmod +x /home/pi/WOLF4SDL
+sudo chmod +x /home/pi/PINBALL
+sudo chmod +x /home/pi/NUMPTYPHYSICS
+sudo chmod +x /home/pi/LTRIS
+sudo chmod +x /home/pi/DEBUG_MENU
+sudo chmod +x /home/pi/PORTRAIT_MODE
+sudo chmod +x /home/pi/LANDSCAPE_MODE
+sudo chmod 777 /home/pi/ORIENTATION_MODE
+
+#setup xsessionrc - this runs at login time
+cp xsessionrc /home/pi/.xsessionrc
+
+echo "Now reboot or restart sddm.  You should be automatically logged into KDE.  Log out then finish up by running SETUP_PHASE_2"
+

@@ -1,0 +1,7 @@
+Section "Device"
+	Identifier "test"
+	Driver "fbdev"
+	#Option "rotate" "CCW"
+	Option "rotate" "CW"
+EndSection
+

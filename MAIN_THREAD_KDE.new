@@ -23,7 +23,8 @@ STORED_WAKEUP_TIMESTAMP=0
 sudo ifconfig eth0 down
 
 #for new modem enumeration after various events
-OLD_MODEM_NUMBER=$(mmcli -L | cut -c42)
+#OLD_MODEM_NUMBER=$(mmcli -L | cut -c42-43)
+OLD_MODEM_NUMBER=$(mmcli -L | cut -d "/" -f6 | cut -d " " -f1)
 MODEM_NUMBER=$OLD_MODEM_NUMBER
 
 BOOT_STATUS=$( awk '{ print }' /home/pi/FIRST_BOOT )
@@ -505,11 +506,20 @@ WVDIAL_COUNTER=0
 #adapter 5 does not use modemmanager
 if [ $ADAPTER_CHECK_5 -lt 1 ]
 then
+#check if modemmanager has found a modem at all
+MODEM_EXISTENCE_CHECK=$(mmcli -L | grep org | wc -l)
+if [ "$MODEM_EXISTENCE_CHECK" -lt "1" ]
+then
+#tell modemmanager to stop being lazy
+kdialog --passivepopup "Rescanning for modems - standby" 1
+mmcli -S
+fi
 #check for new modem enumeration and reenable
 #there is a different position for modem index number now
 #MODEM_NUMBER=$(mmcli -L | cut -c39)
 #check that we have a number and update if so
-MODEM_NUMBER_PRE=$(mmcli -L | cut -c42)
+#MODEM_NUMBER_PRE=$(mmcli -L | cut -c42-43)
+MODEM_NUMBER_PRE=$(mmcli -L | cut -d "/" -f6 | cut -d " " -f1)
 if [ "$MODEM_NUMBER_PRE" -eq "$MODEM_NUMBER_PRE" ] 2>/dev/null
 then
 MODEM_NUMBER=$MODEM_NUMBER_PRE
@@ -525,8 +535,11 @@ kdialog --passivepopup "Reenabling modem manager after new modem enumeration" 1
 sleep 3
 #there is a different position for modem index number now
 #OLD_MODEM_NUMBER=$(mmcli -L | cut -c39)
-OLD_MODEM_NUMBER=$(mmcli -L | cut -c42)
+#OLD_MODEM_NUMBER=$(mmcli -L | cut -c42-43)
+OLD_MODEM_NUMBER=$(mmcli -L | cut -d "/" -f6 | cut -d " " -f1)
 ENABLE_STATUS=$(sudo mmcli -m $OLD_MODEM_NUMBER -e | grep success | wc -l)
+#better reset touchscreen calibration here too
+xinput set-prop 'waveshare multi-point Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
 done
 fi
 fi
@@ -634,9 +647,8 @@ if [ "$PROVIDER" = "TMOBILE" ]
 then
 sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=fast.t-mobile.com"&
 fi
-sleep 10
 sudo killall dhclient
-sudo timeout 10s dhclient wwan0
+sudo timeout 20s dhclient wwan0
 fi #connection check
 #this is the newest method but not working
 #CARRIER_CHECK=$(cat /sys/class/net/wwan0/carrier)
@@ -644,7 +656,9 @@ fi #connection check
 #/sys/class/wwan0/operstate is probably similar to carrier
 #the RUNNING state in ifconfig is probably taken from carrier
 #the good old route check should still work and is probably best
-CARRIER_CHECK=$(sudo timeout 7 route | grep default | wc -l)
+#this timeout needs to be much more generous
+#CARRIER_CHECK=$(sudo timeout 7 route | grep default | wc -l)
+CARRIER_CHECK=$(sudo timeout 30 route | grep default | wc -l)
 #vim3 has virtual ethernet device with ip so increase check by 1
 #this keeps both reconnection routines from interfering
 if [ "$IP_CHECK_ACTION" -lt 1 ]
@@ -680,7 +694,7 @@ then
 sudo mmcli -m $MODEM_NUMBER --simple-connect="apn=fast.t-mobile.com"&
 fi
 sudo killall dhclient
-sudo timeout 10s dhclient wwan0
+sudo timeout 20s dhclient wwan0
 fi #carrier check
 fi #ip check action
 #this way does not work

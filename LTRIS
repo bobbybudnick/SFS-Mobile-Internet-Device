@@ -1,8 +1,0 @@
-cp /home/pi/LEFT.ltris /home/pi/LEFT
-cp /home/pi/RIGHT.ltris /home/pi/RIGHT
-
-ltris
-
-cp /home/pi/LEFT.default /home/pi/LEFT
-cp /home/pi/RIGHT.default /home/pi/RIGHT
-

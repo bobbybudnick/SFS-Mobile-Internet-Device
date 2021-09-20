@@ -12,8 +12,10 @@ cp kscreenlockerrc ~/.config
 cp breezerc ~/.config
 mkdir ~/.config/menus
 cp applications-kmenuedit.menu ~/.config/menus/
+cp kwalletrc ~/.config
 
 #setup on screen keyboard
-sudo cp keyboard.xml.STANDARD /usr/share/matchbox-keyboard/keyboard.xml
+#sudo cp keyboard.xml.STANDARD /usr/share/matchbox-keyboard/keyboard.xml
 
 echo "All finished.  Reboot or login/logout once more and test the main thread with a USB keyboard attached.  If everything works, you can set it to autostart."
+

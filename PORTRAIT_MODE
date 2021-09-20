@@ -1,23 +1,42 @@
 #setup portrait mode and everything associated
 
+#wait for kde login to complete
+sleep 10
+
 #setup touchscreen input calibration
 #yikes these identical screens have different ids
 xinput set-prop 'WaveShare WS170120' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
 xinput set-prop 'waveshare multi-point Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+xinput set-prop 'cywy USB2IIC_CTP_CONTROL' 'Coordinate Transformation Matrix' 0 -1 1 1 0 0 0 0 1
 
 #720p for gaming will allow a game to run in an 800x600 window
 #set all randr parameters at once
 #release mouse lock/jail/prison/box/trap with panning
 #different ids for identical screens again or maybe devices themselves
-sleep 5
-xrandr --output HDMI-2 --mode 1280x720 --rotate right --panning 1300x1300
-xrandr --output HDMI2 --mode 1280x720 --rotate right --panning 1300x1300
-sleep .1
-xdotool mousemove 0 1300
-sleep 3
-xrandr --output HDMI-2 --mode 1280x720 --rotate right --panning 0x0
-xrandr --output HDMI2 --mode 1280x720 --rotate right --panning 0x0
+#sleep 5
+#needed for sbc like lattepanda that has a dsi connector
+#xrandr --output DSI-1 --off
+#sleep 2
+#xrandr --output HDMI-2 --mode 1280x720 --rotate right
+#xrandr --output HDMI2 --mode 1280x720 --rotate right
+#the rest of this is probably not needed with lattepanda
+#xrandr --output HDMI-2 --mode 1280x720 --rotate right --panning 1300x1300
+#xrandr --output HDMI2 --mode 1280x720 --rotate right --panning 1300x1300
+#sleep .1
+#xdotool mousemove 0 1300
+#sleep 2
+#xrandr --output HDMI-2 --mode 1280x720 --rotate right --panning 0x0
+#xrandr --output HDMI2 --mode 1280x720 --rotate right --panning 0x0
+
+#for lattepanda delta and alpha
+#xrandr --output HDMI-1 --mode 1280x720 --rotate right
+#for new 4 inch small screen model
+xrandr --output HDMI-1 --mode 1280x720 --rotate left
 
 #signal the mode
 echo 0 > /home/pi/ORIENTATION_MODE
+
+#start easystroke
+#for convenience and screen debugging
+easystroke&
 

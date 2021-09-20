@@ -1,23 +1,19 @@
-#modified for pc stick
+#for x86
 
 #install initial packages
-#this is needed for some reason
-#not needed on pc stick
-#sudo apt-get autoremove desktop-base
 #keep this separate so it is easy to add to
 sudo chmod +x KDE_64_APPLICATIONS
 sudo ./KDE_64_APPLICATIONS
-#do this and the install again just in case
-#sudo apt-get autoremove desktop-base
+#do the install again just in case
 sudo ./KDE_64_APPLICATIONS
 
 #remove pulseaudio
 sudo apt-get -y autoremove pulseaudio
 
-#nothing else was needed for sound on pc stick
 #setup custom alsa rules
-#cp asoundrc /home/pi/.asoundrc
+cp asoundrc /home/pi/.asoundrc
 #setup custom alsa indices
+#hopefully not needed going forward
 #cp alsa-base.conf /etc/modprobe.d/
 
 #setup miscellaneous
@@ -26,6 +22,10 @@ sudo cp sddm.conf /etc/sddm.conf
 sudo cp udhcpd.conf /etc/udhcpd.conf
 sudo cp sudoers /etc/sudoers
 sudo cp 'Big_Buck_Bunny_first_23_seconds_1080p.ogv' /home/pi
+#disable power button shutdown
+sudo cp logind.conf /etc/systemd/logind.conf
+#start on screen keyboard with qt applications
+sudo cp environment /etc/environment
 
 #setup convenience notifications
 cp 10_PERCENT_BATTERY.svg /home/pi
@@ -93,8 +93,8 @@ cp ORIENTATION_MODE /home/pi
 
 #setup easystroke
 cp -r easystroke /home/pi/.easystroke
-cp -r easystroke-0.5.6 /home/pi
-(cd /home/pi/easystroke-0.5.6 && sudo make install)
+cp -r easystroke /home/pi
+(cd /home/pi/easystroke && sudo make install)
 
 #setup permissions
 sudo chmod 777 /home/pi/NOTIFICATION_READOUT

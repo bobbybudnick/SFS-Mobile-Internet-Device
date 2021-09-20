@@ -74,28 +74,28 @@ def icon_update():
             "/home/pi/sample_icon.svg",
             priority=GObject.PRIORITY_DEFAULT
             )
-	if BATTERY_MODE >= "1":
+        if BATTERY_MODE >= "1":
             #print("greater than or equal to one")
             GObject.idle_add(
             indicator.set_icon,
             "/home/pi/10_PERCENT_BATTERY.svg",
             priority=GObject.PRIORITY_DEFAULT
             )
-	if BATTERY_MODE >= "2":
+        if BATTERY_MODE >= "2":
             #print("greater than or equal to 2")
             GObject.idle_add(
             indicator.set_icon,
             "/home/pi/20_PERCENT_BATTERY.svg",
             priority=GObject.PRIORITY_DEFAULT
             )
-	if BATTERY_MODE >= "3":
+        if BATTERY_MODE >= "3":
             #print(message)
             GObject.idle_add(
             indicator.set_icon,
             "/home/pi/30_PERCENT_BATTERY.svg",
             priority=GObject.PRIORITY_DEFAULT
             )
-	if BATTERY_MODE >= "4":
+        if BATTERY_MODE >= "4":
             #print(message)
             GObject.idle_add(
             indicator.set_icon,

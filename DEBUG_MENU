@@ -3,7 +3,7 @@
 #this assumes a us location with a non changing mcc and mnc
 
 #CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Update time with NTP" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time without NTP" off 5 "Delete SMS databases" off 6 "Delete ModemManager config" off 7 "Low Power" off 8 "High Power" off 9 "Portrait" off 10 "Landscape" off 11 "Shutdown" off 12 "Reboot" off)
-CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Low Power" off 4 "High Power" off 5 "Portrait" off 6 "Landscape" off 7 "Shutdown" off 8 "Reboot" off)
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Alpha Low Power" off 4 "Alpha High Power" off 5 "Shutdown" off 6 "Reboot" off 7 "Reacquire IP" off)
 #if [ "$CHOICE" -eq 1 ]
 #then
 #sudo ntpdate time.nist.gov
@@ -67,31 +67,39 @@ fi
 
 if [ "$CHOICE" -eq 3 ]
 then
-sudo cpupower frequency-set --governor powersave
+#sudo cpupower frequency-set --governor powersave
+sudo sh -c "echo '5000000' >> /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw"
 fi
 
 if [ "$CHOICE" -eq 4 ]
 then
-sudo cpupower frequency-set --governor performance
+#sudo cpupower frequency-set --governor performance
+#sudo cpupower frequency-set -u 2200Mhz -d 2200Mhz
+sudo sh -c "echo '7000000' >> /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw"
 fi
+
+#if [ "$CHOICE" -eq 5 ]
+#then
+#/home/pi/PORTRAIT_MODE
+#fi
+
+#if [ "$CHOICE" -eq 6 ]
+#then
+#/home/pi/LANDSCAPE_MODE
+#fi
 
 if [ "$CHOICE" -eq 5 ]
-then
-/home/pi/PORTRAIT_MODE
-fi
-
-if [ "$CHOICE" -eq 6 ]
-then
-/home/pi/LANDSCAPE_MODE
-fi
-
-if [ "$CHOICE" -eq 7 ]
 then
 sudo shutdown -h now
 fi
 
-if [ "$CHOICE" -eq 8 ]
+if [ "$CHOICE" -eq 6 ]
 then
 sudo reboot
+fi
+
+if [ "$CHOICE" -eq 7 ]
+then
+sudo dhclient wwan0
 fi
 

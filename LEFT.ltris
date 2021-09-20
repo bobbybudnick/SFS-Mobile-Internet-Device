@@ -1,4 +1,0 @@
-xdotool keydown Left
-sleep .01
-xdotool keyup Left
-

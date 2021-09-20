@@ -1,3 +1,0 @@
-xdotool keydown Right
-sleep .15
-xdotool keyup Right

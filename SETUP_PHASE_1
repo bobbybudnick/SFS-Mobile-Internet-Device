@@ -1,5 +1,4 @@
-#modified for pc stick
-#now modified for vim3
+#for ARM
 
 #remove systemd since this is for debian not devuan
 #not working since there are some hdmi related scripts for systemd
@@ -20,14 +19,10 @@ sudo chsh pi -s /usr/bin/bash
 sudo dpkg -i linux-image-amlogic-4.9_0.9.4_arm64.deb
 
 #install initial packages
-#this is needed for some reason
-#not needed on pc stick
-#sudo apt-get autoremove desktop-base
 #keep this separate so it is easy to add to
 sudo chmod +x KDE_64_APPLICATIONS
 sudo ./KDE_64_APPLICATIONS
-#do this and the install again just in case
-#sudo apt-get autoremove desktop-base
+#install again just in case
 sudo ./KDE_64_APPLICATIONS
 
 #remove pulseaudio
@@ -40,10 +35,10 @@ sudo apt-get autoremove sddm
 sudo systemctl disable camera_isp_3a_server.service
 sudo systemctl disable hostapd.service
 
-#nothing else was needed for sound on pc stick
 #setup custom alsa rules
-#cp asoundrc /home/pi/.asoundrc
+cp asoundrc /home/pi/.asoundrc
 #setup custom alsa indices
+#hopefully not needed going forward
 #cp alsa-base.conf /etc/modprobe.d/
 
 #setup miscellaneous
@@ -68,6 +63,8 @@ sudo cp interfaces /etc/network/interfaces
 #sudo cp NetworkManager.conf /etc/NetworkManager/NetworkManager.conf
 #just a test video
 sudo cp 'Big_Buck_Bunny_first_23_seconds_1080p.ogv' /home/pi
+#start on screen keyboard with qt applications
+sudo cp environment /etc/environment
 
 #setup convenience notifications
 cp 10_PERCENT_BATTERY.svg /home/pi
@@ -129,12 +126,13 @@ cp KILL_GTK* /home/pi
 cp GESTURES.jpg /home/pi
 cp FIRST_BOOT /home/pi
 cp DEBUG_MENU /home/pi
-cp PORTRAIT_MODE /home/pi
-cp LANDSCAPE_MODE /home/pi
-cp ORIENTATION_MODE /home/pi
+cp CANCEL /home/pi
+cp XSESSION_CHILD /home/pi
 
 #setup easystroke
+#the configuration
 cp -r easystroke /home/pi/.easystroke
+#the source code and binaries
 cp -r easystroke-0.5.6 /home/pi
 (cd /home/pi/easystroke-0.5.6 && sudo make clean && sudo make install)
 
@@ -161,9 +159,8 @@ sudo chmod +x /home/pi/PINBALL
 sudo chmod +x /home/pi/NUMPTYPHYSICS
 sudo chmod +x /home/pi/LTRIS
 sudo chmod +x /home/pi/DEBUG_MENU
-sudo chmod +x /home/pi/PORTRAIT_MODE
-sudo chmod +x /home/pi/LANDSCAPE_MODE
-sudo chmod 777 /home/pi/ORIENTATION_MODE
+sudo chmod +x /home/pi/CANCEL
+sudo chmod +x /home/pi/XSESSION_CHILD
 
 #setup xsessionrc - this runs at login time
 cp xsessionrc /home/pi/.xsessionrc

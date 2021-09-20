@@ -1,7 +1,7 @@
 [Compositing]
-AnimationSpeed=3
+AnimationSpeed=0
 Backend=OpenGL
-Enabled=false
+Enabled=true
 GLColorCorrection=false
 GLCore=false
 GLPlatformInterface=glx

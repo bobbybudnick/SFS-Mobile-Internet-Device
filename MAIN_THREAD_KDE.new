@@ -215,7 +215,8 @@ sleep 1
 xset -dpms
 #change below for gtk - and kde now too
 #start easystroke for DE independent gesture recognition
-easystroke&
+#disabled here and started with xsession child
+#easystroke&
 #start bluetooth input daemon
 #for odroid c2 - no room for bluetooth electrically and physically
 #/home/pi/BLUETOOTH_DAEMON&

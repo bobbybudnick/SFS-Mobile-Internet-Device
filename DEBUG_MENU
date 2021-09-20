@@ -5,7 +5,8 @@
 #CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Update time with NTP" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time without NTP" off 5 "Delete SMS databases" off 6 "Delete ModemManager config" off 7 "Low Power" off 8 "High Power" off 9 "Portrait" off 10 "Landscape" off 11 "Shutdown" off 12 "Reboot" off)
 #no more dynamic switching of rotation with the old fbdev
 #CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Low Power" off 4 "High Power" off 5 "Portrait" off 6 "Landscape" off 7 "Shutdown" off 8 "Reboot" off 9 "Flashlight On" off 10 "Flashlight Off" off)
-CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Low Power" off 4 "High Power" off 5 "Shutdown" off 6 "Reboot" off 7 "Flashlight On" off 8 "Flashlight Off" off 9 "Turn off BIG cores" off 10 "Turn on BIG cores" off)
+#CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Low Power" off 4 "High Power" off 5 "Shutdown" off 6 "Reboot" off 7 "Flashlight On" off 8 "Flashlight Off" off 9 "Turn off BIG cores" off 10 "Turn on BIG cores" off)
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Shutdown" off 4 "Reboot" off 5 "Flashlight On" off 6 "Flashlight Off" off 7 "Power Profile 1 - Low" off 8 "Power Profile 2 - Medium" off 9 "Power Profile 3 - High" off)
 #if [ "$CHOICE" -eq 1 ]
 #then
 #sudo ntpdate time.nist.gov
@@ -67,15 +68,15 @@ then
 sudo rm -r /home/pi/.config/modem-manager-gui/
 fi
 
-if [ "$CHOICE" -eq 3 ]
-then
-sudo cpupower frequency-set --governor interactive
-fi
+#if [ "$CHOICE" -eq 3 ]
+#then
+#sudo cpupower frequency-set --governor interactive
+#fi
 
-if [ "$CHOICE" -eq 4 ]
-then
-sudo cpupower frequency-set --governor performance
-fi
+#if [ "$CHOICE" -eq 4 ]
+#then
+#sudo cpupower frequency-set --governor performance
+#fi
 
 #if [ "$CHOICE" -eq 5 ]
 #then
@@ -87,39 +88,72 @@ fi
 #/home/pi/LANDSCAPE_MODE
 #fi
 
-if [ "$CHOICE" -eq 5 ]
+if [ "$CHOICE" -eq 3 ]
 then
 sudo shutdown -h now
 fi
 
-if [ "$CHOICE" -eq 6 ]
+if [ "$CHOICE" -eq 4 ]
 then
 sudo reboot
 fi
 
-if [ "$CHOICE" -eq 7 ]
+if [ "$CHOICE" -eq 5 ]
 then
 sudo sh -c "echo 'default-on' >> /sys/class/leds/sys_led/trigger"
 fi
 
-if [ "$CHOICE" -eq 8 ]
+if [ "$CHOICE" -eq 6 ]
 then
 sudo sh -c "echo 'none' >> /sys/class/leds/sys_led/trigger"
 fi
 
-if [ "$CHOICE" -eq 9 ]
+#if [ "$CHOICE" -eq 9 ]
+#then
+#sudo sh -c "echo '0' >> /sys/devices/system/cpu/cpu2/online"
+#sudo sh -c "echo '0' >> /sys/devices/system/cpu/cpu3/online"
+#sudo sh -c "echo '0' >> /sys/devices/system/cpu/cpu4/online"
+#sudo sh -c "echo '0' >> /sys/devices/system/cpu/cpu5/online"
+#fi
+
+#if [ "$CHOICE" -eq 10 ]
+#then
+#sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu2/online"
+#sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu3/online"
+#sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu4/online"
+#sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu5/online"
+#fi
+
+if [ "$CHOICE" -eq 7 ]
 then
 sudo sh -c "echo '0' >> /sys/devices/system/cpu/cpu2/online"
 sudo sh -c "echo '0' >> /sys/devices/system/cpu/cpu3/online"
 sudo sh -c "echo '0' >> /sys/devices/system/cpu/cpu4/online"
 sudo sh -c "echo '0' >> /sys/devices/system/cpu/cpu5/online"
+sudo cpupower frequency-set --governor performance
 fi
 
-if [ "$CHOICE" -eq 10 ]
+if [ "$CHOICE" -eq 8 ]
 then
 sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu2/online"
 sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu3/online"
 sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu4/online"
 sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu5/online"
+sudo cpupower frequency-set --governor interactive
+#used to work but no longer
+#sudo sh -c "echo '667000' >> /sys/devices/system/cpu/cpufreq/policy2/scaling_max_freq"
+#still too slow
+#sudo sh -c "echo '1200000' >> /sys/devices/system/cpu/cpufreq/policy2/scaling_max_freq"
+sudo sh -c "echo '1398000' >> /sys/devices/system/cpu/cpufreq/policy2/scaling_max_freq"
+fi
+
+if [ "$CHOICE" -eq 9 ]
+then
+sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu2/online"
+sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu3/online"
+sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu4/online"
+sudo sh -c "echo '1' >> /sys/devices/system/cpu/cpu5/online"
+sudo cpupower frequency-set --governor interactive
+sudo sh -c "echo '2208000' >> /sys/devices/system/cpu/cpufreq/policy2/scaling_max_freq"
 fi
 

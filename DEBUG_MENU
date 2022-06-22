@@ -3,7 +3,7 @@
 #this assumes a us location with a non changing mcc and mnc
 
 #CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Update time with NTP" on 2 "Reset notification light" off 3 "Retrieve 3GPP location data" off 4 "Retrieve time without NTP" off 5 "Delete SMS databases" off 6 "Delete ModemManager config" off 7 "Low Power" off 8 "High Power" off 9 "Portrait" off 10 "Landscape" off 11 "Shutdown" off 12 "Reboot" off)
-CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Alpha Low Power" off 4 "Alpha High Power" off 5 "Shutdown" off 6 "Reboot" off 7 "Reacquire IP" off)
+CHOICE=$( kdialog --radiolist "Debug Menu" 1 "Delete SMS databases" off 2 "Delete ModemManager config" off 3 "Low Power" off 4 "High Power" off 5 "Shutdown" off 6 "Reboot" off 7 "Reacquire IP" off 8 "Set for external" off 9 "Set for standalone" off)
 #if [ "$CHOICE" -eq 1 ]
 #then
 #sudo ntpdate time.nist.gov
@@ -101,5 +101,19 @@ fi
 if [ "$CHOICE" -eq 7 ]
 then
 sudo dhclient wwan0
+fi
+
+if [ "$CHOICE" -eq 8 ]
+then
+xrandr --output DP1 --mode 1920x1080 --output HDMI1 --mode 1920x1080 --rotate normal
+cp /home/pi/asoundrc.EXTERNAL /home/pi/.asoundrc
+/home/pi/TOUCH_EXTERNAL
+fi
+
+if [ "$CHOICE" -eq 9 ]
+then
+xrandr --output DP1 --off --output HDMI1 --mode 1280x720 --rotate right
+cp /home/pi/asoundrc.STANDALONE_STANDARD /home/pi/.asoundrc
+/home/pi/TOUCH_STANDALONE
 fi
 

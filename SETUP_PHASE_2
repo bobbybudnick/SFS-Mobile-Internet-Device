@@ -7,8 +7,10 @@ sudo ./KDE_64_APPLICATIONS
 #do the install again just in case
 sudo ./KDE_64_APPLICATIONS
 
-#remove pulseaudio
+#remove pulseaudio because it is really bad
 sudo apt-get -y autoremove pulseaudio
+#remove discover to stop software update nags
+sudo apt-get autoremove plasma-discover
 
 #setup custom alsa rules
 cp asoundrc /home/pi/.asoundrc
@@ -26,6 +28,8 @@ sudo cp 'Big_Buck_Bunny_first_23_seconds_1080p.ogv' /home/pi
 sudo cp logind.conf /etc/systemd/logind.conf
 #start on screen keyboard with qt applications
 sudo cp environment /etc/environment
+#ensure consistent video driver loading
+sudo cp 20-intel.conf /etc/X11/xorg.conf.d/
 
 #setup convenience notifications
 cp 10_PERCENT_BATTERY.svg /home/pi
@@ -125,6 +129,9 @@ sudo chmod 777 /home/pi/ORIENTATION_MODE
 
 #setup xsessionrc - this runs at login time
 cp xsessionrc /home/pi/.xsessionrc
+
+#setup qtvirtualkeyboard - remove dictionary to disable suggestions
+sudo mv /usr/share/hunspell/* ~
 
 echo "Now reboot or restart sddm.  You should be automatically logged into KDE.  Log out then finish up by running SETUP_PHASE_3"
 

@@ -1,0 +1,5 @@
+sleep 3
+xdotool mousedown 1
+sleep 2
+xdotool mouseup 1
+

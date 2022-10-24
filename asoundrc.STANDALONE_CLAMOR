@@ -1,0 +1,33 @@
+pcm.softvol {
+        type    softvol
+        slave {
+                pcm     "plughw:0,7"
+        }
+        control {
+        name "TOOT"
+        card "0"
+        }
+        max_dB 15.0
+}
+
+pcm.!usb
+{
+type hw
+card 1
+device 0
+}
+
+pcm.!default {
+type asym
+playback.pcm
+{
+type plug
+slave.pcm "softvol"
+}
+capture.pcm
+{
+type plug
+slave.pcm "usb"
+}
+}
+

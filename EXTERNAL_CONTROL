@@ -1,0 +1,20 @@
+#!/bin/bash
+
+CHOICE=$( kdialog --radiolist "External Menu (root required - run from CLI)" 1 "Set for external" off 2 "Set for standalone" off)
+
+if [ "$CHOICE" -eq 1 ]
+then
+sudo sh -c "echo '7000000' >> /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw"
+xrandr --output DP1 --mode 1920x1080 --output HDMI1 --mode 1920x1080 --rotate normal
+cp /home/pi/asoundrc.EXTERNAL /home/pi/.asoundrc
+/home/pi/TOUCH_DEBUG_EXTERNAL
+fi
+
+if [ "$CHOICE" -eq 2 ]
+then
+sudo sh -c "echo '5000000' >> /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw"
+xrandr --output DP1 --off --output HDMI1 --mode 1280x720 --rotate right
+cp /home/pi/asoundrc.STANDALONE_STANDARD /home/pi/.asoundrc
+/home/pi/TOUCH_DEBUG_STANDALONE
+fi
+

@@ -1,0 +1,20 @@
+#set portrait screen as primary so main desktop appears
+#for communications and web browsing
+xrandr --output HDMI2 --primary
+
+#set landscape screen as logically above portrait screen
+#for gaming and document work
+xrandr --output DP1 --above HDMI2
+
+#calibrate the portrait screen
+#the landscape screen is calibrated by default
+xinput set-prop 'WaveShare WS170120' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+xinput set-prop 'waveshare multi-point Touchscreen' 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+xinput set-prop 'cywy USB2IIC_CTP_CONTROL' 'Coordinate Transformation Matrix' 0 -1 1 1 0 0 0 0 1
+
+#make touch input specific to a certain screen
+xinput map-to-output 'WaveShare WS170120' HDMI2
+
+#make touch input specific to a certain screen
+xinput map-to-output '深圳市全动电子技术有限公司 ByQDtech 触控USB鼠标' DP1
+

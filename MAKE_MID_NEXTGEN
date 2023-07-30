@@ -1,0 +1,142 @@
+#make mid rewrite to hopefully be more simple
+#for devuan 3.x series
+#this assumes the installed user is pi
+#also assumes the use of a direct usb networking device that does not dial in
+
+#check if we are root
+#this needs to be a valid command or it will fail the check
+#sudo foo
+sudo date
+#this exits if the preceding command has an error
+if [ $? -ne 0 ]
+then
+echo "Error: Probably not root"
+exit 1
+fi
+
+#create config dotfile folder if it does not exist
+#put this outside the set command so it does not trip up if the folder exists
+mkdir /home/pi/.config
+
+#add pi user to bluetooth group
+#this is crucial for bluedevil to work
+#put this outside set in case it exits unexpectedly
+addgroup pi bluetooth
+
+#exit if any command has an error
+set -e
+
+#run installer script
+chmod +x /home/pi/MID_SOURCE/KDE_64_APPLICATIONS
+/home/pi/MID_SOURCE/KDE_64_APPLICATIONS
+
+#remove some stuff
+#pulseaudio poetteringware gets the boot
+#the display manager sddm conflicts with scripting
+#plasma-discover out because it is nasty noob stuff
+#kscreen goes because it conflicts with scripting
+apt-get -y autoremove pulseaudio sddm plasma-discover kscreen
+
+#copy and extract easystroke source
+cp /home/pi/MID_SOURCE/easystroke.zip /home/pi
+unzip easystroke.zip
+
+#compile easystroke
+make clean -C /home/pi/easystroke/
+make -j2 -C /home/pi/easystroke/
+
+#install easystroke
+make install -C /home/pi/easystroke/
+
+#copy easystroke configuration
+#this may be bugged so disabling for now
+#mkdir /home/pi/.easystroke
+#cp /home/pi/MID_SOURCE/EASYSTROKE/actions-0.5.6 /home/pi/.easystroke/
+#cp /home/pi/MID_SOURCE/EASYSTROKE/preferences-0.5.5 /home/pi/.easystroke/
+
+#folder should be called MID_SOURCE
+cd /home/pi/MID_SOURCE
+
+#setup power savings
+cp rc.local /etc/rc.local
+
+#arrange script variable files
+echo 0 > /home/pi/NOTIFICATION_READOUT
+echo 1 > /home/pi/BATTERY_READOUT
+echo 0 > /home/pi/SIGNAL_READOUT
+
+#copy main thread/portrait mode/asoundrc/kwin/powermanagement/windowing/konsolerc/locker/keyboard/notification scripts
+#this is for the simple case of one display and audio output
+cp MAIN_THREAD_KDE_MINI.new /home/pi
+cp PORTRAIT_MODE /home/pi
+cp asoundrc.STANDALONE_STANDARD /home/pi/.asoundrc
+#window size and position rules
+cp kwinrulesrc /home/pi/.config/kwinrulesrc
+#turn off display power management
+cp powermanagementprofilesrc /home/pi/.config/powermanagementprofilesrc
+#make window elements larger
+cp breezerc /home/pi/.config/breezerc
+#set konsole font larger
+cp 'Profile 1.profile' /home/pi/.local/share/konsole/'Profile 1.profile'
+#disable screen locking
+cp kscreenlockerrc /home/pi/.config/kscreenlockerrc
+cp ON_SCREEN_KEYBOARD /home/pi
+cp NOTIFICATION_ICON.py /home/pi
+cp BATTERY_ICON.py /home/pi
+cp SIGNAL_ICON.py /home/pi
+
+#copy easystroke gesture scripts
+cp LEFT /home/pi
+cp RIGHT /home/pi
+cp UP /home/pi
+cp DOWN /home/pi
+cp HOLD /home/pi
+cp CANCEL /home/pi
+cp KILL_GTK /home/pi
+cp TOUCH_DEBUG_STANDALONE /home/pi
+cp RIGHT_CLICK /home/pi
+cp ZOOM_IN /home/pi
+cp ZOOM_OUT /home/pi
+
+#copy svg support files for notification icons
+cp *.svg /home/pi
+
+#configure sudo to not ask for password for pi from now on
+#be careful with this as the mid is not a ultra high security environment
+cp sudoers /etc/sudoers
+
+#set on screen keyboard to come on within qt appropriate contexts
+cp environment /etc/environment
+
+#toggles udhcpd in the correct way for internet connection sharing
+cp udhcpd.conf /etc/udhcpd.conf
+
+#setup auto login for pi/auto launch of xorg at login/configure xorg launch
+cp inittab /etc/inittab
+cp bashrc /home/pi/.bashrc
+cp xinitrc /home/pi/.xinitrc
+
+#set permissions
+chmod +x /home/pi/MAIN_THREAD_KDE_MINI.new
+chmod +x /home/pi/PORTRAIT_MODE
+chmod +x /home/pi/NOTIFICATION_ICON.py
+chmod +x /home/pi/BATTERY_ICON.py
+chmod +x /home/pi/SIGNAL_ICON.py
+chmod +x /home/pi/LEFT
+chmod +x /home/pi/RIGHT
+chmod +x /home/pi/UP
+chmod +x /home/pi/DOWN
+chmod +x /home/pi/HOLD
+chmod +x /home/pi/CANCEL
+chmod +x /home/pi/KILL_GTK
+chmod +x /home/pi/TOUCH_DEBUG_STANDALONE
+chmod +x /home/pi/RIGHT_CLICK
+chmod +x /home/pi/ZOOM_IN
+chmod +x /home/pi/ZOOM_OUT
+chmod +x /etc/rc.local
+chmod +x /home/pi/ON_SCREEN_KEYBOARD
+chmod -R 777 /home/pi/.config
+chmod -R 777 /home/pi/NOTIFICATION_READOUT
+chmod -R 777 /home/pi/BATTERY_READOUT
+chmod -R 777 /home/pi/SIGNAL_READOUT
+

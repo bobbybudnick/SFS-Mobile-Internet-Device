@@ -1,7 +1,7 @@
 pcm.softvol {
         type    softvol
         slave {
-                pcm     "plughw:0,2"
+                pcm     "plughw:1,0"
         }
         control {
         name "TOOT"
@@ -13,7 +13,7 @@ pcm.softvol {
 pcm.!usb
 {
 type hw
-card 1
+card 2
 device 0
 }
 

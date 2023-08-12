@@ -1,5 +1,23 @@
 [$Version]
 update_info=kwinrules.upd:replace-placement-string-to-enum
 
+[1]
+Description=Application settings for linphone
+position=-134,0
+positionrule=3
+size=950,654
+sizerule=2
+wmclass=linphone
+wmclassmatch=1
+
+[2]
+Description=Application settings for xvkbd
+position=0,923
+positionrule=2
+size=1076,471
+sizerule=2
+wmclass=xvkbd
+wmclassmatch=1
+
 [General]
-count=0
+count=2

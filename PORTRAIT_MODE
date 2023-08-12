@@ -1,7 +1,8 @@
 #setup portrait mode and everything associated
 
 #wait for kde login to complete
-sleep 10
+#do not wait for kde login to complete
+#sleep 10
 
 #setup touchscreen input calibration
 #yikes these identical screens have different ids
@@ -32,18 +33,23 @@ sleep 10
 #xrandr --output HDMI2 --mode 1280x720 --rotate right --panning 0x0
 
 #for aoxun pc stick or lattepanda delta 3 with 5 inch screen
-xrandr --output HDMI2 --mode 1280x720 --rotate right
+#xrandr --output HDMI2 --mode 1280x720 --rotate right
 #for lattepanda alpha with 4 inch screen
 #xrandr --output HDMI1 --mode 1280x720 --rotate left
 #for lattepanda delta with 5 inch screen
-xrandr --output HDMI1 --mode 1280x720 --rotate right
+#xrandr --output HDMI1 --mode 1280x720 --rotate right
 #for terryza pc stick with devuan 3.x series
-xrandr --output HDMI-2 --mode 1280x720 --rotate right
+#xrandr --output HDMI-2 --mode 1280x720 --rotate right
+#for mele pro
+xrandr --output HDMI-2 --rotate left --scale 1.5x1.5
+#xrandr --output HDMI-2 --rotate left --scale 2x2
+#xrandr --output HDMI-2 --rotate left --scale 1.25x1.25
+#xrandr --output HDMI-2 --rotate left
 
 #deal with mouse cursor "bounding bug" common on intel
 #might need to change if a problem with other intel
 #but this is a specific workaorund for terryza pc stick
-xrandr --output HDMI-2 --transform 1,0,-1,0,1,0,0,0,1
+#xrandr --output HDMI-2 --transform 1,0,-1,0,1,0,0,0,1
 
 #signal the mode
 echo 0 > ~/ORIENTATION_MODE

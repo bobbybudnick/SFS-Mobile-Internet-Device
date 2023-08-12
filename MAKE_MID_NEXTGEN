@@ -23,6 +23,11 @@ mkdir /home/pi/.config
 #put this outside set in case it exits unexpectedly
 addgroup pi bluetooth
 
+#copy bluetooth firmware for mele pcg02 pro
+#put this outside in case the firmware exists and stops unexpectedly
+cp /home/pi/MID_SOURCE/rtl8852bu_config.bin /lib/firmware/rtl_bt
+cp /home/pi/MID_SOURCE/rtl8852bu_fw.bin /lib/firmware/rtl_bt
+
 #exit if any command has an error
 set -e
 
@@ -81,9 +86,18 @@ cp breezerc /home/pi/.config/breezerc
 #set konsole font larger
 mkdir /home/pi/.local/share/konsole
 cp 'Profile 1.profile' /home/pi/.local/share/konsole/'Profile 1.profile'
+#make compositing faster while scaling by disabling effects
+cp kwinrc /home/pi/.config/kwinrc
+#configure desktop session to be new each time
+cp ksmserverrc /home/pi/.config/ksmserverrc
+#disable the kwallet abomination
+cp kwalletrc /home/pi/.config/kwalletrc
+#setup task tray icon visibility
+cp plasma-org.kde.plasma.desktop-appletsrc /home/pi/.config/plasma-org.kde.plasma.desktop-appletsrc
 #disable screen locking
 cp kscreenlockerrc /home/pi/.config/kscreenlockerrc
-cp ON_SCREEN_KEYBOARD /home/pi
+#the on screen keyboard situation is not great besides plasma keyboard
+#cp ON_SCREEN_KEYBOARD /home/pi
 cp NOTIFICATION_ICON.py /home/pi
 cp BATTERY_ICON.py /home/pi
 cp SIGNAL_ICON.py /home/pi

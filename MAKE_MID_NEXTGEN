@@ -35,10 +35,12 @@ chmod +x /home/pi/MID_SOURCE/KDE_64_APPLICATIONS
 #the display manager sddm conflicts with scripting
 #plasma-discover out because it is nasty noob stuff
 #kscreen goes because it conflicts with scripting
-apt-get -y autoremove pulseaudio sddm plasma-discover kscreen
+#network manager is ejected for network conflicts
+apt-get -y autoremove pulseaudio sddm plasma-discover kscreen network-manager
 
 #copy and extract easystroke source
 cp /home/pi/MID_SOURCE/easystroke.zip /home/pi
+cd /home/pi
 unzip easystroke.zip
 
 #compile easystroke
@@ -77,6 +79,7 @@ cp powermanagementprofilesrc /home/pi/.config/powermanagementprofilesrc
 #make window elements larger
 cp breezerc /home/pi/.config/breezerc
 #set konsole font larger
+mkdir /home/pi/.local/share/konsole
 cp 'Profile 1.profile' /home/pi/.local/share/konsole/'Profile 1.profile'
 #disable screen locking
 cp kscreenlockerrc /home/pi/.config/kscreenlockerrc
